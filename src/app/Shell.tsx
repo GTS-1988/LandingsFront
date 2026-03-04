@@ -54,6 +54,7 @@ export default function Shell({ children }: PropsWithChildren) {
   const { pathname } = useLocation()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const blurActiveElement = () => (document.activeElement as HTMLElement)?.blur()
 
   useEffect(() => {
     try {
@@ -68,13 +69,17 @@ export default function Shell({ children }: PropsWithChildren) {
   }, [isCollapsed])
 
   useEffect(() => {
+    blurActiveElement()
     setIsMobileOpen(false)
   }, [pathname])
 
   useEffect(() => {
     if (!isMobileOpen) return
     const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsMobileOpen(false)
+      if (e.key === 'Escape') {
+        blurActiveElement()
+        setIsMobileOpen(false)
+      }
     }
     window.addEventListener('keydown', onEsc)
     return () => window.removeEventListener('keydown', onEsc)
@@ -126,7 +131,10 @@ export default function Shell({ children }: PropsWithChildren) {
           type="button"
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           title={collapsed ? 'Expandir' : 'Colapsar'}
-          onClick={() => setIsCollapsed((s) => !s)}
+          onClick={() => {
+            blurActiveElement()
+            setIsCollapsed((s) => !s)
+          }}
           className="hidden h-9 w-9 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:border-[color:color-mix(in_srgb,var(--accent)_26%,white)] hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)] md:inline-flex"
         >
           {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
@@ -169,7 +177,10 @@ export default function Shell({ children }: PropsWithChildren) {
               'absolute inset-0 bg-[color:color-mix(in_srgb,var(--text)_45%,white)]/25 transition-opacity duration-200 ease-out',
               isMobileOpen ? 'opacity-100' : 'opacity-0',
             )}
-            onClick={() => setIsMobileOpen(false)}
+            onClick={() => {
+              blurActiveElement()
+              setIsMobileOpen(false)
+            }}
           />
           <aside
             role="dialog"
@@ -185,13 +196,21 @@ export default function Shell({ children }: PropsWithChildren) {
               <button
                 type="button"
                 aria-label="Close navigation"
-                onClick={() => setIsMobileOpen(false)}
+                onClick={() => {
+                  blurActiveElement()
+                  setIsMobileOpen(false)
+                }}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)]"
               >
                 <X size={16} />
               </button>
             </div>
-            <NavContent onNavigate={() => setIsMobileOpen(false)} />
+            <NavContent
+              onNavigate={() => {
+                blurActiveElement()
+                setIsMobileOpen(false)
+              }}
+            />
           </aside>
         </div>
 
@@ -202,20 +221,23 @@ export default function Shell({ children }: PropsWithChildren) {
                 <button
                   type="button"
                   aria-label="Open navigation"
-                  onClick={() => setIsMobileOpen(true)}
+                  onClick={() => {
+                    blurActiveElement()
+                    setIsMobileOpen(true)
+                  }}
                   className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:border-[color:color-mix(in_srgb,var(--accent)_30%,white)] hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)] md:hidden"
                 >
                   <Menu size={17} />
                 </button>
                 <div className="min-w-0">
-                <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
-                  <span>Admin</span>
-                  <span className="opacity-60">/</span>
-                  <span className="text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))]">{breadcrumbLabel}</span>
+                  <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                    <span>Admin</span>
+                    <span className="opacity-60">/</span>
+                    <span className="text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))]">{breadcrumbLabel}</span>
+                  </div>
+                  <h1 className="truncate text-xl font-semibold tracking-tight text-[var(--text)]">{routeTitle}</h1>
+                  <p className="mt-1 truncate text-sm text-[var(--muted)]">{routeSubtitle}</p>
                 </div>
-                <h1 className="truncate text-xl font-semibold tracking-tight text-[var(--text)]">{routeTitle}</h1>
-                <p className="mt-1 truncate text-sm text-[var(--muted)]">{routeSubtitle}</p>
-              </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="rounded-full border border-[color:color-mix(in_srgb,var(--accent)_35%,white)] bg-[color:color-mix(in_srgb,var(--accent)_14%,white)] px-3 py-1 text-xs font-semibold text-[color:color-mix(in_srgb,var(--accent)_80%,var(--text))]">

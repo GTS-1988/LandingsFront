@@ -41,7 +41,7 @@ export default function Landings() {
         <div className="text-sm font-semibold text-[var(--text)]">Crear landing</div>
         <div className="grid gap-2.5 md:grid-cols-3">
           <div>
-            <div className="mb-1 text-xs text-[var(--muted)]">clientId</div>
+            <div className="mb-1 text-xs text-[var(--muted)]">Cliente Id</div>
             <Input value={clientId} onChange={(e) => setClientId(e.target.value)} placeholder="Pega aquí el clientId" />
           </div>
           <div className="md:col-span-2">
