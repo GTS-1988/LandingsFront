@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-export type Client = { id: string; name: string; createdAt: string; updatedAt: string }
+export type Client = { id: string; name: string; createdAt: string; updatedAt?: string }
 export type Landing = {
   id: string
   clientId: string
@@ -53,9 +53,42 @@ export async function createClient(name: string) {
   return data.client as Client
 }
 
+export async function listClients(params: { q?: string; take?: number; cursor?: string }) {
+  const qs = new URLSearchParams()
+  qs.set('take', String(params.take ?? 50))
+  if (params.q) qs.set('q', params.q)
+  if (params.cursor) qs.set('cursor', params.cursor)
+
+  const base = api.defaults.baseURL || ''
+  const path = /\/v1\/?$/.test(base) ? '/admin/clients' : '/v1/admin/clients'
+  const { data } = await api.get(`${path}?${qs.toString()}`, {
+    headers: {
+      'x-admin-key': env.adminApiKey,
+    },
+  })
+  return data as { ok: true; clients: Client[]; nextCursor: string | null }
+}
+
 export async function createLanding(clientId: string, name: string) {
   const { data } = await api.post('/admin/landings', { clientId, name })
   return data as { ok: boolean; landing: Landing; form: Form; telegramConnectUrl: string; formEndpoint: string }
+}
+
+export async function listLandings(params: { clientId: string; q?: string; take?: number; cursor?: string }) {
+  const qs = new URLSearchParams()
+  qs.set('clientId', params.clientId)
+  qs.set('take', String(params.take ?? 50))
+  if (params.q) qs.set('q', params.q)
+  if (params.cursor) qs.set('cursor', params.cursor)
+
+  const base = api.defaults.baseURL || ''
+  const path = /\/v1\/?$/.test(base) ? '/admin/landings' : '/v1/admin/landings'
+  const { data } = await api.get(`${path}?${qs.toString()}`, {
+    headers: {
+      'x-admin-key': env.adminApiKey,
+    },
+  })
+  return data as { ok: true; landings: Array<{ id: string; name: string; clientId: string; createdAt: string }>; nextCursor: string | null }
 }
 
 export async function getLanding(landingId: string) {
