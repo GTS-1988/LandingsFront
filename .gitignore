@@ -1,0 +1,207 @@
+
+# ---------------------------------------------------------------------------
+# Dependencies / Package managers
+# ---------------------------------------------------------------------------
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Locks (elige lo que usas; si el repo debe tener lockfile, QUITA el ignore)
+# package-lock.json
+# pnpm-lock.yaml
+# yarn.lock
+
+# ---------------------------------------------------------------------------
+# Build / Output / Bundlers
+# ---------------------------------------------------------------------------
+dist/
+build/
+out/
+.vite/
+.esbuild/
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+.cache/
+.tmp/
+temp/
+tmp/
+
+# ---------------------------------------------------------------------------
+# Logs / Debug
+# ---------------------------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+debug.log
+*.trace
+*.pid
+
+# ---------------------------------------------------------------------------
+# Environment files (SECRETS)
+# ---------------------------------------------------------------------------
+# Never commit real env files
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+
+# Common local env variants (redundant but explicit)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ---------------------------------------------------------------------------
+# Certificates / Keys / Credentials (SECRETS)
+# ---------------------------------------------------------------------------
+# Private keys & certs
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.der
+
+# SSH / GPG / token files
+**/.ssh/
+**/*.gpg
+**/*.asc
+**/*_rsa
+**/*_dsa
+**/*_ed25519
+**/*id_rsa*
+**/*id_dsa*
+**/*id_ed25519*
+**/*known_hosts*
+**/*authorized_keys*
+
+# Cloud credentials
+**/.aws/
+**/.azure/
+**/.config/gcloud/
+**/*service-account*.json
+**/*firebase-adminsdk*.json
+**/*google-credentials*.json
+**/*gcp-credentials*.json
+
+# Auth / tokens / secrets (common filenames)
+**/secrets.*
+**/*.secret
+**/*.secrets
+**/*secret*
+**/*token*
+**/*apikey*
+**/*api_key*
+**/*api-key*
+**/*credentials*
+**/*passwd*
+**/*password*
+**/*private*
+
+# ---------------------------------------------------------------------------
+# Local config / runtime state
+# ---------------------------------------------------------------------------
+.local/
+.private/
+.secrets/
+runtime/
+data/
+db/
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.bak
+*.backup
+*.old
+*.orig
+*.swp
+*.swo
+
+# ---------------------------------------------------------------------------
+# Coverage / Test outputs
+# ---------------------------------------------------------------------------
+coverage/
+.nyc_output/
+*.lcov
+reports/
+test-results/
+playwright-report/
+playwright/.cache/
+cypress/videos/
+cypress/screenshots/
+
+# ---------------------------------------------------------------------------
+# Storybook
+# ---------------------------------------------------------------------------
+storybook-static/
+
+# ---------------------------------------------------------------------------
+# Lint / Formatter / Tool caches
+# ---------------------------------------------------------------------------
+.eslintcache
+.stylelintcache
+.prettiercache
+.turbo/
+.vscode-test/
+
+# ---------------------------------------------------------------------------
+# IDEs / Editors
+# ---------------------------------------------------------------------------
+# VS Code (permitimos configs compartibles)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# JetBrains
+.idea/
+*.iml
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# ---------------------------------------------------------------------------
+# OS files
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+.Trashes
+ehthumbs.db
+.nfs*
+
+# ---------------------------------------------------------------------------
+# Hosting / Platforms
+# ---------------------------------------------------------------------------
+.vercel/
+.netlify/
+.firebase/
+.now/
+
+# ---------------------------------------------------------------------------
+# Misc
+# ---------------------------------------------------------------------------
+*.tgz
+*.zip
+*.tar
+*.tar.gz
+*.7z
