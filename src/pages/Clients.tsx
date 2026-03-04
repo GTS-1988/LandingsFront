@@ -17,21 +17,21 @@ export default function Clients() {
   })
 
   return (
-    <div className="space-y-4">
-      <div>
-        <div className="text-xl font-semibold">Clientes</div>
-        <div className="text-sm text-zinc-400">Crear clientes (el backend actual no expone listado/edición/borrado).</div>
-      </div>
-
-      <Card>
-        <div className="mb-2 text-sm font-medium">Crear cliente</div>
-        <div className="flex flex-col gap-2 md:flex-row">
+    <div className="space-y-5">
+      <Card className="space-y-4">
+        <div>
+          <div className="text-sm font-semibold text-[var(--text)]">Crear cliente</div>
+          <div className="mt-1 text-xs text-[var(--muted)]">
+            El backend actual no expone listado/edición/borrado.
+          </div>
+        </div>
+        <div className="flex flex-col gap-2.5 md:flex-row">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre" />
           <Button onClick={() => m.mutate()} disabled={m.isPending || !name.trim()}>
             {m.isPending ? 'Creando…' : 'Crear'}
           </Button>
         </div>
-        <div className="mt-2 text-xs text-zinc-500">
+        <div className="text-xs text-[var(--muted)]">
           Tip: copia el <span className="font-mono">id</span> para crear una landing.
         </div>
       </Card>

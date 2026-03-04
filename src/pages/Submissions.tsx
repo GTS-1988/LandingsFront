@@ -52,20 +52,15 @@ export default function Submissions() {
   }, [rows])
 
   return (
-    <div className="space-y-4">
-      <div>
-        <div className="text-xl font-semibold">Submissions</div>
-        <div className="text-sm text-zinc-400">Lista y detalle. Reenviar crea una submission nueva (misma data).</div>
-      </div>
-
-      <Card className="space-y-2">
-        <div className="grid gap-2 md:grid-cols-3">
+    <div className="space-y-5">
+      <Card className="space-y-3">
+        <div className="grid gap-2.5 md:grid-cols-3">
           <div className="md:col-span-2">
-            <div className="mb-1 text-xs text-zinc-400">Filtrar por landingId (opcional)</div>
+            <div className="mb-1 text-xs text-[var(--muted)]">Filtrar por landingId (opcional)</div>
             <Input value={landingId} onChange={(e) => setLandingId(e.target.value)} placeholder="landingId…" />
           </div>
           <div>
-            <div className="mb-1 text-xs text-zinc-400">take</div>
+            <div className="mb-1 text-xs text-[var(--muted)]">take</div>
             <Input
               value={String(take)}
               onChange={(e) => setTake(Math.max(1, Math.min(200, parseInt(e.target.value || '50', 10))))}
@@ -76,38 +71,41 @@ export default function Submissions() {
           </div>
         </div>
 
-        <div className="text-xs text-zinc-500">
+        <div className="text-xs text-[var(--muted)]">
           Backend: GET /admin/submissions?landingId=&take=
         </div>
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card className="space-y-2">
-          <div className="text-sm font-medium">Listado</div>
-          <div className="text-xs text-zinc-500">{q.isLoading ? 'Cargando…' : `${rows.length} items`}</div>
+        <Card className="space-y-3">
+          <div className="text-sm font-semibold text-[var(--text)]">Listado</div>
+          <div className="text-xs text-[var(--muted)]">{q.isLoading ? 'Cargando…' : `${rows.length} items`}</div>
 
           <div className="max-h-[60vh] overflow-auto space-y-2">
             {Array.from(grouped.entries()).map(([lid, items]) => (
-              <div key={lid} className="rounded-xl border border-zinc-800 p-2">
-                <div className="mb-2 text-xs text-zinc-400">
+              <div
+                key={lid}
+                className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-2.5"
+              >
+                <div className="mb-2 text-xs text-[var(--muted)]">
                   landingId: <span className="font-mono">{lid}</span>
                 </div>
                 <div className="space-y-2">
                   {items.map((s) => (
                     <button
                       key={s.id}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/30 p-3 text-left hover:bg-zinc-900/40"
+                      className="w-full rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] p-3 text-left transition hover:bg-[color:color-mix(in_srgb,var(--bg)_86%,white)]"
                       onClick={() => setSelected(s)}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <div className="text-sm font-medium">{s.name || s.email || '(sin nombre)'}</div>
-                        <div className="text-xs text-zinc-500">{fmt(s.createdAt)}</div>
+                        <div className="text-sm font-semibold text-[var(--text)]">{s.name || s.email || '(sin nombre)'}</div>
+                        <div className="text-xs text-[var(--muted)]">{fmt(s.createdAt)}</div>
                       </div>
-                      <div className="mt-1 text-xs text-zinc-500">
+                      <div className="mt-1 text-xs text-[var(--muted)]">
                         formId: <span className="font-mono">{s.formId}</span>
                         {s.form?.name ? ` • ${s.form.name}` : ''}
                       </div>
-                      <div className="mt-1 text-xs text-zinc-400 line-clamp-2">{s.message || ''}</div>
+                      <div className="mt-1 line-clamp-2 text-xs text-[var(--muted)]">{s.message || ''}</div>
                     </button>
                   ))}
                 </div>
@@ -116,14 +114,14 @@ export default function Submissions() {
           </div>
         </Card>
 
-        <Card className="space-y-2">
-          <div className="text-sm font-medium">Detalle</div>
+        <Card className="space-y-3">
+          <div className="text-sm font-semibold text-[var(--text)]">Detalle</div>
           {!selected ? (
-            <div className="text-sm text-zinc-400">Selecciona una submission del listado.</div>
+            <div className="text-sm text-[var(--muted)]">Selecciona una submission del listado.</div>
           ) : (
             <div className="space-y-3">
-              <div className="rounded-xl border border-zinc-800 p-3">
-                <div className="text-xs text-zinc-400">IDs</div>
+              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+                <div className="text-xs text-[var(--muted)]">IDs</div>
                 <div className="mt-1 text-xs">
                   submissionId: <span className="font-mono">{selected.id}</span>
                 </div>
@@ -135,20 +133,20 @@ export default function Submissions() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-zinc-800 p-3">
-                <div className="text-xs text-zinc-400">Campos</div>
+              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+                <div className="text-xs text-[var(--muted)]">Campos</div>
                 <div className="mt-1 text-sm">
                   <div>👤 {selected.name || '-'}</div>
                   <div>✉️ {selected.email || '-'}</div>
                   <div>📞 {selected.phone || '-'}</div>
                 </div>
-                <div className="mt-2 text-xs text-zinc-400">Mensaje</div>
-                <div className="mt-1 whitespace-pre-wrap text-sm text-zinc-200">{selected.message || '-'}</div>
+                <div className="mt-2 text-xs text-[var(--muted)]">Mensaje</div>
+                <div className="mt-1 whitespace-pre-wrap text-sm text-[var(--text)]">{selected.message || '-'}</div>
               </div>
 
-              <div className="rounded-xl border border-zinc-800 p-3">
-                <div className="text-xs text-zinc-400">data (raw)</div>
-                <pre className="mt-1 max-h-64 overflow-auto rounded-xl bg-black/30 p-2 text-xs">
+              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+                <div className="text-xs text-[var(--muted)]">data (raw)</div>
+                <pre className="mt-1 max-h-64 overflow-auto rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] p-2 text-xs">
 {JSON.stringify(selected.data || {}, null, 2)}
                 </pre>
               </div>

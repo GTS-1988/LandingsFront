@@ -6,7 +6,7 @@ export default function Button({ className, ...props }: ButtonHTMLAttributes<HTM
     <button
       {...props}
       className={cx(
-        'inline-flex items-center justify-center rounded-xl bg-white px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-200 disabled:opacity-50',
+        'inline-flex items-center justify-center rounded-xl border border-[color:color-mix(in_srgb,var(--accent)_38%,white)] bg-[var(--accent)] px-3.5 py-2 text-sm font-semibold text-white shadow-[0_1px_1px_rgba(0,0,0,0.04)] transition hover:bg-[color:color-mix(in_srgb,var(--accent)_88%,black)] disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
     />
