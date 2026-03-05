@@ -96,6 +96,11 @@ export async function getLanding(landingId: string) {
   return data.landing as Landing
 }
 
+export async function getLandingDetails(landingId: string) {
+  const { data } = await api.get(`/admin/landings/${landingId}`)
+  return data as any
+}
+
 export async function createForm(landingId: string, payload: { name: string; fields: any[] }) {
   const { data } = await api.post(`/admin/landings/${landingId}/forms`, payload)
   return data.form as Form

@@ -168,7 +168,7 @@ export default function Clients() {
           <div className="text-sm text-[var(--muted)]">Página {page}/{cursorStack.length +1}</div>
           <div className="flex items-center gap-2">
             <Button
-              className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
+              className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)] disabled:border-[color:color-mix(in_srgb,var(--text)_12%,white)] disabled:bg-[color:color-mix(in_srgb,var(--bg)_70%,white)] disabled:text-[var(--muted)] disabled:opacity-100"
               onClick={goPrevious}
               disabled={loading || page <= 1 || cursorStack.length === 0}
             >

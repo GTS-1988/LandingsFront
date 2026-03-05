@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Client, createLanding, listClients, listLandings } from '../lib/api'
+import { Client, createLanding, getLandingDetails, listClients, listLandings } from '../lib/api'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 import Toast from '../ui/Toast'
 import { Card } from '../ui/Card'
 import { Link } from 'react-router-dom'
+import Modal from '../ui/Modal'
 
 function fmtDate(ts: string) {
   try {
@@ -18,7 +19,6 @@ function fmtDate(ts: string) {
 export default function Landings() {
   const [selectedClientId, setSelectedClientId] = useState('')
   const [name, setName] = useState('')
-  const [last, setLast] = useState<any | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [clients, setClients] = useState<Client[]>([])
   const [clientsLoading, setClientsLoading] = useState(false)
@@ -35,33 +35,35 @@ export default function Landings() {
   const [cursorStack, setCursorStack] = useState<string[]>([])
   const [page, setPage] = useState(1)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const [detailsLandingId, setDetailsLandingId] = useState<string | null>(null)
+  const [detailsLoading, setDetailsLoading] = useState(false)
+  const [detailsError, setDetailsError] = useState<string | null>(null)
+  const [detailsData, setDetailsData] = useState<any | null>(null)
+  const [detailsReloadKey, setDetailsReloadKey] = useState(0)
+  const [lastCreatedById, setLastCreatedById] = useState<Record<string, any>>({})
+  const lastTriggerRef = useRef<HTMLElement | null>(null)
 
   const m = useMutation({
     mutationFn: async () => createLanding(selectedClientId, name),
     onSuccess: (r) => {
-      setLast(r)
+      setLastCreatedById((prev) => ({ ...prev, [r.landing.id]: r }))
       setToast(`✅ Landing creada: ${r.landing.name}`)
       setName('')
       setCursor(null)
       setCursorStack([])
       setPage(1)
       setRefreshKey((k) => k + 1)
+      setDetailsLandingId(r.landing.id)
+      setIsDetailsOpen(true)
     },
     onError: (e: any) => setToast(`❌ Error: ${e?.message || e}`),
   })
-
-  const landingId = last?.landing?.id as string | undefined
-  const formId = last?.form?.id as string | undefined
 
   const copy = async (t: string) => {
     await navigator.clipboard.writeText(t)
     setToast('📋 Copiado al portapapeles')
   }
-
-  const formSubmitUrl = useMemo(() => {
-    if (!last?.formEndpoint) return null
-    return last.formEndpoint as string
-  }, [last])
 
   useEffect(() => {
     let isCurrent = true
@@ -161,6 +163,55 @@ export default function Landings() {
     setPage((p) => Math.max(1, p - 1))
   }
 
+  useEffect(() => {
+    if (!isDetailsOpen || !detailsLandingId) return
+    let isCurrent = true
+    setDetailsLoading(true)
+    setDetailsError(null)
+
+    getLandingDetails(detailsLandingId)
+      .then((data) => {
+        if (!isCurrent) return
+        setDetailsData(data)
+      })
+      .catch((e: any) => {
+        if (!isCurrent) return
+        setDetailsError(e?.message || 'Error cargando detalle')
+      })
+      .finally(() => {
+        if (!isCurrent) return
+        setDetailsLoading(false)
+      })
+
+    return () => {
+      isCurrent = false
+    }
+  }, [isDetailsOpen, detailsLandingId, detailsReloadKey])
+
+  const closeDetails = () => {
+    ;(document.activeElement as HTMLElement)?.blur()
+    setIsDetailsOpen(false)
+  }
+
+  const openDetails = (landingId: string, trigger?: HTMLElement | null) => {
+    if (trigger) lastTriggerRef.current = trigger
+    ;(document.activeElement as HTMLElement)?.blur()
+    setDetailsLandingId(landingId)
+    setIsDetailsOpen(true)
+  }
+
+  const rawLanding = detailsData?.landing || detailsData
+  const fallbackCreated = detailsLandingId ? lastCreatedById[detailsLandingId] : null
+  const landingName = rawLanding?.name || fallbackCreated?.landing?.name || '-'
+  const modalLandingId = rawLanding?.id || detailsLandingId || fallbackCreated?.landing?.id
+  const modalFormId = rawLanding?.forms?.[0]?.id || fallbackCreated?.form?.id
+  const telegramConnectUrl =
+    detailsData?.telegramConnectUrl ||
+    rawLanding?.telegramConnectUrl ||
+    fallbackCreated?.telegramConnectUrl ||
+    null
+  const formEndpoint = detailsData?.formEndpoint || rawLanding?.formEndpoint || fallbackCreated?.formEndpoint || null
+
   return (
     <div className="space-y-5">
       <Card className="space-y-4">
@@ -249,6 +300,7 @@ export default function Landings() {
                       <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">Nombre</th>
                       <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">ID</th>
                       <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">Created date</th>
+                      <th className="px-3 py-2 text-right font-semibold text-[var(--text)]">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[var(--surface)]">
@@ -257,6 +309,17 @@ export default function Landings() {
                         <td className="px-3 py-2 text-[var(--text)]">{l.name}</td>
                         <td className="px-3 py-2 font-mono text-xs text-[var(--muted)]">{l.id}</td>
                         <td className="px-3 py-2 text-[var(--muted)]">{fmtDate(l.createdAt)}</td>
+                        <td className="px-3 py-2 text-right">
+                          <button
+                            type="button"
+                            aria-label={`Ver detalles de ${l.name}`}
+                            title="Ver detalles"
+                            onClick={(e) => openDetails(l.id, e.currentTarget)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_12%,white)] text-sm text-[var(--muted)] transition-colors duration-200 ease-out hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)]"
+                          >
+                            👁
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -268,7 +331,7 @@ export default function Landings() {
               <div className="text-sm text-[var(--muted)]">Página {page}</div>
               <div className="flex items-center gap-2">
                 <Button
-                  className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
+                  className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)] disabled:border-[color:color-mix(in_srgb,var(--text)_12%,white)] disabled:bg-[color:color-mix(in_srgb,var(--bg)_70%,white)] disabled:text-[var(--muted)] disabled:opacity-100"
                   onClick={goPrevious}
                   disabled={loading || page <= 1 || cursorStack.length === 0}
                 >
@@ -283,64 +346,101 @@ export default function Landings() {
         )}
       </Card>
 
-      {last && (
-        <Card className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <div className="text-sm font-semibold text-[var(--text)]">Resultado</div>
-              <div className="text-xs text-[var(--muted)]">Información que debes pasar al cliente.</div>
-            </div>
-            {landingId && (
-              <Link
-                className="text-sm font-medium text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))] underline"
-                to={`/landings/${landingId}`}
+      <Modal
+        isOpen={isDetailsOpen}
+        onClose={closeDetails}
+        title="Detalle de landing"
+        returnFocusRef={lastTriggerRef}
+      >
+        {detailsLoading ? (
+          <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[color:color-mix(in_srgb,var(--text)_18%,white)] border-t-[var(--accent)]" />
+            Cargando detalle...
+          </div>
+        ) : detailsError ? (
+          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+            <div className="text-sm text-[var(--text)]">{detailsError}</div>
+            {detailsLandingId && (
+              <Button
+                className="mt-3"
+                onClick={() => setDetailsReloadKey((k) => k + 1)}
               >
-                Abrir detalle →
-              </Link>
+                Reintentar
+              </Button>
             )}
           </div>
+        ) : (
+          <div className="space-y-3">
+            <div>
+              <div className="text-sm font-semibold text-[var(--text)]">{landingName}</div>
+              {modalLandingId && (
+                <div className="text-xs text-[var(--muted)]">
+                  landingId: <span className="font-mono">{modalLandingId}</span>
+                  {modalFormId ? (
+                    <>
+                      {' '}• formId: <span className="font-mono">{modalFormId}</span>
+                    </>
+                  ) : null}
+                </div>
+              )}
+            </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-              <div className="text-xs text-[var(--muted)]">Telegram connect URL</div>
-              <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{last.telegramConnectUrl}</div>
-              <div className="mt-2 flex gap-2">
-                <Button className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]" onClick={() => copy(last.telegramConnectUrl)}>
-                  Copiar
-                </Button>
-                <a
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+                <div className="text-xs text-[var(--muted)]">Telegram connect URL</div>
+                <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{telegramConnectUrl || '-'}</div>
+                <div className="mt-2 flex gap-2">
+                  {telegramConnectUrl && (
+                    <Button
+                      className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
+                      onClick={() => copy(telegramConnectUrl)}
+                    >
+                      Copiar
+                    </Button>
+                  )}
+                  {telegramConnectUrl && (
+                    <a
+                      className="text-sm font-medium text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))] underline"
+                      href={telegramConnectUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Abrir
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+                <div className="text-xs text-[var(--muted)]">Endpoint submit (landing+form)</div>
+                <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{formEndpoint || '-'}</div>
+                <div className="mt-2 flex gap-2">
+                  {formEndpoint && (
+                    <Button
+                      className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
+                      onClick={() => copy(formEndpoint)}
+                    >
+                      Copiar
+                    </Button>
+                  )}
+                </div>
+                <div className="mt-2 text-xs text-[var(--muted)]">Este endpoint ya incluye el formId.</div>
+              </div>
+            </div>
+
+            {modalLandingId && (
+              <div>
+                <Link
                   className="text-sm font-medium text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))] underline"
-                  href={last.telegramConnectUrl}
-                  target="_blank"
-                  rel="noreferrer"
+                  to={`/landings/${modalLandingId}`}
                 >
-                  Abrir
-                </a>
+                  Abrir detalle →
+                </Link>
               </div>
-            </div>
-
-            <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-              <div className="text-xs text-[var(--muted)]">Endpoint submit (landing+form)</div>
-              <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{formSubmitUrl}</div>
-              <div className="mt-2 flex gap-2">
-                {formSubmitUrl && (
-                  <Button className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]" onClick={() => copy(formSubmitUrl)}>
-                    Copiar
-                  </Button>
-                )}
-              </div>
-              <div className="mt-2 text-xs text-[var(--muted)]">Este endpoint ya incluye el formId.</div>
-            </div>
+            )}
           </div>
-
-          {landingId && formId && (
-            <div className="text-xs text-[var(--muted)]">
-              landingId: <span className="font-mono">{landingId}</span> • formId:{' '}
-              <span className="font-mono">{formId}</span>
-            </div>
-          )}
-        </Card>
-      )}
+        )}
+      </Modal>
 
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>

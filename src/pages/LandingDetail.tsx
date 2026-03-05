@@ -142,7 +142,7 @@ export default function LandingDetail() {
                   </div>
                   <div className="flex gap-2">
                     <Button
-                      className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
+                      className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] !bg-[var(--surface)] !text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
                       onClick={() => copy(`${landing.id}/${f.id}`)}
                     >
                       Copiar IDs
