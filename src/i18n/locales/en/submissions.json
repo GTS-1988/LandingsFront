@@ -1,0 +1,50 @@
+{
+  "filters": {
+    "clientLabel": "Client",
+    "clientPlaceholder": "Choose a client…",
+    "clientAriaLabel": "Select client",
+    "landingLabel": "Landing",
+    "landingPlaceholder": "Choose a landing…",
+    "landingAriaLabel": "Select landing",
+    "pageSizeLabel": "Page size"
+  },
+  "list": {
+    "title": "List",
+    "count": "{{count}} items",
+    "noSelectionCount": "-",
+    "formReference": "formId: {{id}}",
+    "unnamed": "(no name)"
+  },
+  "detail": {
+    "title": "Detail",
+    "empty": "Select a submission from the list.",
+    "idsTitle": "IDs",
+    "submissionId": "submissionId",
+    "landingId": "landingId",
+    "formId": "formId",
+    "fieldsTitle": "Fields",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "messageLabel": "Message",
+    "rawDataTitle": "data (raw)",
+    "resendTitle": "Resend by creating a new submission with the same payload"
+  },
+  "actions": {
+    "resend": "Resend (new submission)",
+    "resending": "Resending…"
+  },
+  "states": {
+    "selectLanding": "Select a landing to view submissions",
+    "loading": "Loading submissions...",
+    "loadingMore": "Loading more submissions...",
+    "empty": "No submissions",
+    "loadError": "Error loading submissions",
+    "loadLandingsError": "Error loading landings",
+    "endOfResults": "No more results"
+  },
+  "toasts": {
+    "resendSuccess": "Resend (new submission) sent",
+    "error": "Error: {{message}}"
+  }
+}

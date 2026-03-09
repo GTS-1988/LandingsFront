@@ -1,0 +1,63 @@
+{
+  "loading": {
+    "session": "Cargando sesión..."
+  },
+  "app": {
+    "backend": "Backend API de Supabase"
+  },
+  "navigation": {
+    "title": "Navegación",
+    "open": "Abrir navegación",
+    "close": "Cerrar navegación",
+    "expand": "Expandir",
+    "collapse": "Colapsar",
+    "dashboard": "Dashboard",
+    "clients": "Clientes",
+    "landings": "Landings",
+    "submissions": "Submissions",
+    "audits": "Auditoría",
+    "settings": "Ajustes"
+  },
+  "routes": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Estado general y flujo recomendado"
+    },
+    "clients": {
+      "title": "Clientes",
+      "subtitle": "Alta rápida de clientes para nuevas landings"
+    },
+    "landings": {
+      "title": "Landings",
+      "subtitle": "Creación de landings y URLs operativas"
+    },
+    "landingDetail": {
+      "title": "Detalle de landing",
+      "subtitle": "Configura formularios, conexión y pruebas de envío"
+    },
+    "submissions": {
+      "title": "Submissions",
+      "subtitle": "Consulta, detalle y reenvío de envíos"
+    },
+    "audits": {
+      "title": "Auditoría",
+      "subtitle": "Eventos recientes y trazabilidad de cambios"
+    },
+    "settings": {
+      "title": "Ajustes",
+      "subtitle": "Preferencias visuales, cuenta y sesión"
+    }
+  },
+  "user": {
+    "fallbackName": "Usuario",
+    "activeSession": "Sesión activa",
+    "role": "Rol {{role}}"
+  },
+  "actions": {
+    "retry": "Reintentar",
+    "settings": "Ajustes",
+    "logout": "Cerrar sesión",
+    "loggingOut": "Cerrando sesión...",
+    "logoutError": "No se pudo cerrar sesión."
+  }
+}

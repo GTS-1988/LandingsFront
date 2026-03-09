@@ -1,0 +1,54 @@
+{
+  "page": {
+    "title": "Audit",
+    "subtitle": "Les événements non lus sont chargés en premier et marqués comme lus à l'entrée dans cette section."
+  },
+  "actions": {
+    "viewRecentHistory": "Voir l'historique récent",
+    "backToUnread": "Retour aux non lus"
+  },
+  "status": {
+    "showingHistory": "Affichage de l'historique récent",
+    "showingUnread": "Affichage des événements à vérifier",
+    "loadingHistory": "Chargement de l'historique...",
+    "updatingTable": "Mise à jour du tableau...",
+    "showingRecentCount": "Affichage des 50 événements les plus récents disponibles.",
+    "initialBatchProcessed": "Le lot initial chargé a déjà été traité pour synchroniser son état de lecture.",
+    "recentEventsLoaded": "Événements récents chargés depuis l'audit."
+  },
+  "states": {
+    "loading": "Chargement des événements...",
+    "emptyUnread": "Aucun événement en attente de vérification",
+    "emptyHistory": "Aucun événement récent",
+    "loadError": "Erreur lors du chargement de l'audit",
+    "historyError": "Impossible de charger l'historique récent.",
+    "markReadError": "Impossible de marquer les événements chargés comme lus."
+  },
+  "table": {
+    "columns": {
+      "type": "Type",
+      "entity": "Entité",
+      "reference": "Référence",
+      "clientLanding": "Client / Landing",
+      "date": "Date",
+      "summary": "Résumé"
+    }
+  },
+  "eventTypes": {
+    "clientCreated": "Client créé",
+    "landingCreated": "Landing créée",
+    "submissionCreated": "Nouvelle submission",
+    "recorded": "Événement enregistré"
+  },
+  "summary": {
+    "clientCreatedWithName": "Client créé : {{name}}",
+    "clientCreated": "Client créé",
+    "landingCreatedWithName": "Landing créée : {{name}}",
+    "landingCreated": "Landing créée",
+    "submissionCreated": "Nouvelle submission reçue",
+    "submissionForm": "Formulaire {{reference}}",
+    "landingReference": "Landing {{reference}}",
+    "reference": "Réf. {{reference}}",
+    "unknown": "Événement enregistré"
+  }
+}

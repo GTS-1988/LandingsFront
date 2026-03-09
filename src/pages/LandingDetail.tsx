@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { createForm, getLanding, makePrimaryForm, submitForm, updateForm } from '../lib/api'
-import { env } from '../lib/env'
+import { useTranslation } from 'react-i18next'
+import { buildV1Url, createForm, getLanding, makePrimaryForm, submitForm, updateForm } from '../lib/api'
 import { Card } from '../ui/Card'
 import Button from '../ui/Button'
 import Input from '../ui/Input'
@@ -10,6 +10,7 @@ import Textarea from '../ui/Textarea'
 import Toast from '../ui/Toast'
 
 export default function LandingDetail() {
+  const { t } = useTranslation(['landings', 'common'])
   const { landingId } = useParams()
   const [toast, setToast] = useState<string | null>(null)
 
@@ -23,27 +24,27 @@ export default function LandingDetail() {
     mutationFn: async (payload: { name: string; fields: any[] }) => createForm(landingId!, payload),
     onSuccess: async () => {
       await q.refetch()
-      setToast('✅ Form creado')
+      setToast(`✅ ${t('landings:toasts.formCreated')}`)
     },
-    onError: (e: any) => setToast(`❌ Error: ${e?.message || e}`),
+    onError: (e: any) => setToast(`❌ ${t('landings:toasts.formCreateError', { message: e?.message || e })}`),
   })
 
   const mUpdateForm = useMutation({
     mutationFn: async (vars: { formId: string; payload: any }) => updateForm(landingId!, vars.formId, vars.payload),
     onSuccess: async () => {
       await q.refetch()
-      setToast('✅ Form actualizado')
+      setToast(`✅ ${t('landings:toasts.formUpdated')}`)
     },
-    onError: (e: any) => setToast(`❌ Error: ${e?.message || e}`),
+    onError: (e: any) => setToast(`❌ ${t('landings:toasts.formUpdateError', { message: e?.message || e })}`),
   })
 
   const mMakePrimary = useMutation({
     mutationFn: async (formId: string) => makePrimaryForm(landingId!, formId),
     onSuccess: async () => {
       await q.refetch()
-      setToast('✅ Formulario principal actualizado')
+      setToast(`✅ ${t('landings:toasts.primaryUpdated')}`)
     },
-    onError: (e: any) => setToast(`❌ Error: ${e?.message || e}`),
+    onError: (e: any) => setToast(`❌ ${t('landings:toasts.primaryUpdateError', { message: e?.message || e })}`),
   })
 
   const [newFormName, setNewFormName] = useState('Nuevo formulario')
@@ -81,23 +82,30 @@ export default function LandingDetail() {
       const body = JSON.parse(testPayload)
       return submitForm(landingId!, testFormId, body)
     },
-    onSuccess: (r) => setToast(`✅ Submit OK: ${r?.reason ? r.reason : 'DELIVERED? ' + String(r?.delivered)}`),
-    onError: (e: any) => setToast(`❌ Error: ${e?.message || e}`),
+    onSuccess: (r) =>
+      setToast(
+        `✅ ${t('landings:toasts.testSubmitSuccess', {
+          result: r?.reason
+            ? r.reason
+            : t('landings:toasts.testSubmitDeliveredFallback', { value: String(r?.delivered) }),
+        })}`,
+      ),
+    onError: (e: any) => setToast(`❌ ${t('landings:toasts.testSubmitError', { message: e?.message || e })}`),
   })
 
-  const copy = async (t: string) => {
+  const copy = async (value: string) => {
     try {
-      await navigator.clipboard.writeText(t)
-      setToast('📋 Copiado')
+      await navigator.clipboard.writeText(value)
+      setToast(`📋 ${t('landings:toasts.copySuccess')}`)
     } catch {
-      setToast('No se pudo copiar al portapapeles')
+      setToast(t('landings:toasts.copyError'))
     }
   }
 
-  if (q.isLoading) return <div className="text-sm text-[var(--muted)]">Cargando…</div>
+  if (q.isLoading) return <div className="text-sm text-[var(--muted)]">{t('landings:states.loadingDetail')}</div>
 
   const landing = q.data
-  if (!landing) return <div className="text-sm text-[var(--muted)]">Landing no encontrada</div>
+  if (!landing) return <div className="text-sm text-[var(--muted)]">{t('landings:states.notFound')}</div>
 
   const forms = landing.forms || []
   const primaryFormId = landing.primaryFormId || forms[0]?.id || null
@@ -105,9 +113,7 @@ export default function LandingDetail() {
   const telegramConnectUrl = landing.telegramConnectUrl || ''
 
   const buildSubmitEndpoint = (formId: string) => {
-    const apiBase = env.apiBaseUrl.replace(/\/+$/, '')
-    const baseWithVersion = /\/v1$/i.test(apiBase) ? apiBase : `${apiBase}/v1`
-    return `${baseWithVersion}/forms/${landing.id}/${formId}/submit`
+    return buildV1Url(`/forms/${landing.id}/${formId}/submit`)
   }
 
   const primaryEndpoint = landing.formEndpoint || (primaryFormId ? buildSubmitEndpoint(primaryFormId) : '')
@@ -116,21 +122,23 @@ export default function LandingDetail() {
     <div className="space-y-5">
       <div>
         <div className="text-xl font-semibold tracking-tight text-[var(--text)]">{landing.name}</div>
-        <div className="text-sm text-[var(--muted)]">landingId: <span className="font-mono">{landing.id}</span></div>
+        <div className="text-sm text-[var(--muted)]">
+          {t('landings:labels.landingId')}: <span className="font-mono">{landing.id}</span>
+        </div>
       </div>
 
       <Card className="space-y-3">
-        <div className="text-sm font-semibold text-[var(--text)]">Estado Telegram</div>
+        <div className="text-sm font-semibold text-[var(--text)]">{t('landings:detail.telegramStatusTitle')}</div>
         <div className="text-sm text-[var(--text)]">
-          Destination: {landing.destination ? '✅ Conectado' : '❌ No conectado'}
+          {t('landings:labels.destination')}: {landing.destination ? t('landings:status.connected') : t('landings:status.disconnected')}
         </div>
         {!landing.destination && (
           <div className="text-xs text-[var(--muted)]">
-            Comparte el deep link con el cliente para conectar el chat.
+            {t('landings:detail.telegramHelper')}
           </div>
         )}
         <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-          <div className="text-xs text-[var(--muted)]">Telegram connect URL</div>
+          <div className="text-xs text-[var(--muted)]">{t('landings:labels.telegramConnectUrl')}</div>
           <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{telegramConnectUrl || '-'}</div>
           <div className="mt-2 flex gap-2">
             {telegramConnectUrl && (
@@ -138,7 +146,7 @@ export default function LandingDetail() {
                 className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
                 onClick={() => copy(telegramConnectUrl)}
               >
-                Copiar
+                {t('landings:actions.copy')}
               </Button>
             )}
             {telegramConnectUrl && (
@@ -148,7 +156,7 @@ export default function LandingDetail() {
                 target="_blank"
                 rel="noreferrer"
               >
-                Abrir
+                {t('landings:actions.open')}
               </a>
             )}
           </div>
@@ -156,13 +164,15 @@ export default function LandingDetail() {
       </Card>
 
       <Card className="space-y-3">
-        <div className="text-sm font-semibold text-[var(--text)]">Formulario principal</div>
+        <div className="text-sm font-semibold text-[var(--text)]">{t('landings:sections.primaryForm')}</div>
         <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
           <div className="text-sm font-semibold text-[var(--text)]">{primaryForm?.name || '-'}</div>
-          <div className="text-xs text-[var(--muted)]">formId: <span className="font-mono">{primaryFormId || '-'}</span></div>
+          <div className="text-xs text-[var(--muted)]">
+            {t('landings:labels.formId')}: <span className="font-mono">{primaryFormId || '-'}</span>
+          </div>
         </div>
         <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-          <div className="text-xs text-[var(--muted)]">Endpoint principal</div>
+          <div className="text-xs text-[var(--muted)]">{t('landings:labels.primaryEndpoint')}</div>
           <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{primaryEndpoint || '-'}</div>
           <div className="mt-2 flex gap-2">
             {primaryEndpoint && (
@@ -170,7 +180,7 @@ export default function LandingDetail() {
                 className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
                 onClick={() => copy(primaryEndpoint)}
               >
-                Copiar
+                {t('landings:actions.copy')}
               </Button>
             )}
           </div>
@@ -179,7 +189,9 @@ export default function LandingDetail() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="space-y-3">
-          <div className="text-sm font-semibold text-[var(--text)]">Formularios de la landing ({forms.length})</div>
+          <div className="text-sm font-semibold text-[var(--text)]">
+            {t('landings:sections.formsCount', { count: forms.length })}
+          </div>
           <div className="space-y-3">
             {forms.map((f) => {
               const isPrimary = f.id === primaryFormId
@@ -196,23 +208,25 @@ export default function LandingDetail() {
                         <div className="text-sm font-semibold text-[var(--text)]">{f.name}</div>
                         {isPrimary && (
                           <span className="rounded-full border border-[color:color-mix(in_srgb,var(--accent)_35%,white)] bg-[color:color-mix(in_srgb,var(--accent)_14%,white)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--text)]">
-                            Principal
+                            {t('landings:status.primary')}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-[var(--muted)]">formId: <span className="font-mono">{f.id}</span></div>
+                      <div className="text-xs text-[var(--muted)]">
+                        {t('landings:labels.formId')}: <span className="font-mono">{f.id}</span>
+                      </div>
                     </div>
                     <Button
                       onClick={() => {
                         setTestFormId(f.id)
-                        setToast('✅ Seleccionado para test')
+                        setToast(`✅ ${t('landings:toasts.selectedForTest')}`)
                       }}
                     >
-                      Test
+                      {t('landings:actions.test')}
                     </Button>
                   </div>
 
-                  <div className="mt-2 text-xs text-[var(--muted)]">Endpoint</div>
+                  <div className="mt-2 text-xs text-[var(--muted)]">{t('landings:labels.endpoint')}</div>
                   <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{formEndpoint}</div>
 
                   <div className="mt-2 flex flex-wrap gap-2">
@@ -225,32 +239,32 @@ export default function LandingDetail() {
                         })
                       }
                     >
-                      {f.isActive ? 'Desactivar' : 'Activar'}
+                      {f.isActive ? t('landings:actions.deactivate') : t('landings:actions.activate')}
                     </Button>
                     <Button
                       className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] !bg-[var(--surface)] !text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
                       onClick={() => copy(formEndpoint)}
                     >
-                      Copiar endpoint
+                      {t('landings:actions.copyEndpoint')}
                     </Button>
                     {!isPrimary && (
                       <Button
                         className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] !bg-[var(--surface)] !text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
                         onClick={() => {
                           const shouldContinue = window.confirm(
-                            'El endpoint principal de esta landing pasará a este formulario. ¿Continuar?',
+                            t('landings:confirmations.makePrimary'),
                           )
                           if (!shouldContinue) return
                           mMakePrimary.mutate(f.id)
                         }}
                         disabled={mMakePrimary.isPending}
                       >
-                        Marcar como principal
+                        {t('landings:actions.makePrimary')}
                       </Button>
                     )}
                   </div>
 
-                  <div className="mt-2 text-xs text-[var(--muted)]">Campos (JSON)</div>
+                  <div className="mt-2 text-xs text-[var(--muted)]">{t('landings:labels.fieldsJson')}</div>
                   <pre className="mt-1 max-h-40 overflow-auto rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] p-2 text-xs text-[var(--text)]">
 {JSON.stringify(f.fields || [], null, 2)}
                   </pre>
@@ -261,14 +275,14 @@ export default function LandingDetail() {
         </Card>
 
         <Card className="space-y-3">
-          <div className="text-sm font-semibold text-[var(--text)]">Crear formulario</div>
-          <div className="text-xs text-[var(--muted)]">Backend: POST /admin/landings/:landingId/forms</div>
+          <div className="text-sm font-semibold text-[var(--text)]">{t('landings:sections.createForm')}</div>
+          <div className="text-xs text-[var(--muted)]">{t('landings:detail.createFormHelper')}</div>
           <div>
-            <div className="mb-1 text-xs text-[var(--muted)]">Nombre</div>
+            <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:create.nameLabel')}</div>
             <Input value={newFormName} onChange={(e) => setNewFormName(e.target.value)} />
           </div>
           <div>
-            <div className="mb-1 text-xs text-[var(--muted)]">Fields (JSON)</div>
+            <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:labels.fieldsJson')}</div>
             <Textarea value={newFields} onChange={(e) => setNewFields(e.target.value)} rows={10} className="font-mono" />
           </div>
           <Button
@@ -277,27 +291,31 @@ export default function LandingDetail() {
                 const fields = JSON.parse(newFields)
                 mCreateForm.mutate({ name: newFormName, fields })
               } catch {
-                setToast('❌ Fields JSON inválido')
+                setToast(`❌ ${t('landings:toasts.invalidFieldsJson')}`)
               }
             }}
             disabled={mCreateForm.isPending}
           >
-            {mCreateForm.isPending ? 'Creando…' : '+ Crear formulario'}
+            {mCreateForm.isPending ? t('landings:actions.creatingForm') : t('landings:actions.createForm')}
           </Button>
 
           <div className="mt-5 space-y-3 border-t border-[color:color-mix(in_srgb,var(--text)_10%,white)] pt-4">
-            <div className="text-sm font-semibold text-[var(--text)]">Test submit</div>
-            <div className="text-xs text-[var(--muted)]">POST /forms/:landingId/:formId/submit</div>
+            <div className="text-sm font-semibold text-[var(--text)]">{t('landings:sections.testSubmit')}</div>
+            <div className="text-xs text-[var(--muted)]">{t('landings:detail.testSubmitHelper')}</div>
             <div>
-              <div className="mb-1 text-xs text-[var(--muted)]">formId</div>
-              <Input value={testFormId} onChange={(e) => setTestFormId(e.target.value)} placeholder="Selecciona un formId" />
+              <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:labels.formId')}</div>
+              <Input
+                value={testFormId}
+                onChange={(e) => setTestFormId(e.target.value)}
+                placeholder={t('landings:detail.testFormPlaceholder')}
+              />
             </div>
             <div>
-              <div className="mb-1 text-xs text-[var(--muted)]">Payload (JSON)</div>
+              <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:labels.payloadJson')}</div>
               <Textarea value={testPayload} onChange={(e) => setTestPayload(e.target.value)} rows={10} className="font-mono" />
             </div>
             <Button onClick={() => mTest.mutate()} disabled={mTest.isPending || !testFormId.trim()}>
-              {mTest.isPending ? 'Enviando…' : 'Enviar test'}
+              {mTest.isPending ? t('landings:actions.sendingTest') : t('landings:actions.sendTest')}
             </Button>
           </div>
         </Card>

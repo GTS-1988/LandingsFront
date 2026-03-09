@@ -1,0 +1,44 @@
+{
+  "page": {
+    "eyebrow": "Preferências",
+    "title": "Configurações",
+    "subtitle": "Personalize a experiência visual do painel e revise as informações da conta atual."
+  },
+  "appearance": {
+    "title": "Aparência",
+    "description": "Ajuste o tema, o idioma e a escala tipográfica do painel. Essas alterações afetam apenas este navegador.",
+    "themeTitle": "Tema",
+    "themeDescription": "Escolha uma superfície clara ou escura para trabalhar com mais conforto.",
+    "lightLabel": "Claro",
+    "lightDescription": "Contraste suave e aparência padrão do painel.",
+    "darkLabel": "Escuro",
+    "darkDescription": "Menor brilho para sessões prolongadas ou ambientes com pouca luz.",
+    "languageTitle": "Idioma",
+    "languageDescription": "Escolha o idioma visível da interface. A seleção é salva automaticamente neste navegador.",
+    "languageSelectLabel": "Idioma da interface",
+    "languageSelectHelper": "A alteração é aplicada imediatamente e salva neste navegador.",
+    "fontSizeTitle": "Tamanho da fonte",
+    "fontSizeDescription": "Ajuste a escala geral do texto sem modificar a estrutura do painel.",
+    "fontSmallLabel": "Pequena",
+    "fontSmallDescription": "Mais informação visível por tela.",
+    "fontMediumLabel": "Média",
+    "fontMediumDescription": "Equilíbrio entre densidade e leitura.",
+    "fontLargeLabel": "Grande",
+    "fontLargeDescription": "Leitura mais confortável e maior presença visual."
+  },
+  "account": {
+    "title": "Conta",
+    "description": "Informações da sessão atual e dados de identificação disponíveis no frontend.",
+    "email": "Email",
+    "role": "Perfil",
+    "userId": "User ID"
+  },
+  "session": {
+    "title": "Sessão e segurança",
+    "description": "Gerencie a sessão ativa a partir de um bloco dedicado e fácil de encontrar.",
+    "currentTitle": "Sessão atual",
+    "currentDescription": "A sessão permanece sincronizada com o sistema de autenticação existente.",
+    "logoutDescription": "Encerre a sessão atual neste dispositivo sem modificar permissões nem configurações da conta.",
+    "logoutError": "Não foi possível encerrar a sessão."
+  }
+}

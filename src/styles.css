@@ -7,9 +7,45 @@
 :root {
   --bg: #f4f8f7;
   --surface: #ffffff;
+  --surface-elevated: #fbfdfd;
+  --surface-soft: #f1f6f4;
+  --surface-muted: #e9f0ed;
   --text: #1f2a2d;
+  --text-soft: #516066;
   --accent: #4f8b83;
+  --danger: #c95b4f;
   --muted: color-mix(in srgb, var(--text) 58%, white);
+  --border: color-mix(in srgb, var(--text) 10%, white);
+  --border-strong: color-mix(in srgb, var(--text) 16%, white);
+  --shadow-color: 24 39 75;
+}
+
+:root[data-theme='dark'] {
+  --bg: #101719;
+  --surface: #172023;
+  --surface-elevated: #1c262a;
+  --surface-soft: #202c30;
+  --surface-muted: #243238;
+  --text: #eef4f3;
+  --text-soft: #b9c6c4;
+  --accent: #6fb5ab;
+  --danger: #f17b71;
+  --muted: color-mix(in srgb, var(--text) 62%, transparent);
+  --border: color-mix(in srgb, var(--text) 12%, transparent);
+  --border-strong: color-mix(in srgb, var(--text) 20%, transparent);
+  --shadow-color: 3 10 16;
+}
+
+:root[data-font-size='small'] {
+  font-size: 15px;
+}
+
+:root[data-font-size='medium'] {
+  font-size: 18px;
+}
+
+:root[data-font-size='large'] {
+  font-size: 20px;
 }
 
 * {
@@ -20,10 +56,17 @@
 body {
   margin: 0;
   font-family: 'Manrope', 'Avenir Next', 'Segoe UI', sans-serif;
-  background: radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 8%, var(--bg)), var(--bg) 42%);
+  background: radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 10%, var(--bg)), var(--bg) 42%);
   color: var(--text);
 }
 
 #root {
   min-height: 100dvh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }

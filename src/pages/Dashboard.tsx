@@ -1,17 +1,11 @@
 import { CheckCircle2, Clock3, FileText, Radio, ShieldAlert } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { getLanguageDateLocale } from '../i18n'
 import { health } from '../lib/api'
 import { Card } from '../ui/Card'
 
 type HealthPayload = Record<string, unknown> | null | undefined
-
-const GUIDE_STEPS = [
-  'Crea Cliente',
-  'Crea Landing (se crea un Form por defecto)',
-  'Crea o usa (si existe previamente) un formulario secundario como principal (Opcional)',
-  'Comparte con el cliente el Telegram Connect URL y que pulse Start',
-  'Testea submissions desde “Landings” o “Submissions”',
-]
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null
@@ -44,15 +38,17 @@ function getFirstDate(payload: HealthPayload, keys: string[]) {
   return Number.isNaN(date.getTime()) ? null : date
 }
 
-function formatTimestamp(date: Date | null) {
-  if (!date) return 'no disponible'
+function formatTimestamp(date: Date | null, language: string, fallbackText: string) {
+  if (!date) return fallbackText
 
-  const datePart = new Intl.DateTimeFormat('es-ES', {
+  const locale = getLanguageDateLocale(language)
+
+  const datePart = new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   }).format(date)
-  const timePart = new Intl.DateTimeFormat('es-ES', {
+  const timePart = new Intl.DateTimeFormat(locale, {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -72,12 +68,12 @@ function getStatusModel(payload: HealthPayload) {
   return {
     healthy: inferredHealthy,
     label,
-    timestamp: getFirstDate(payload, ['updatedAt', 'updated_at', 'timestamp', 'checkedAt', 'checked_at']),
+    timestamp: getFirstDate(payload, ['timestamp', 'updatedAt', 'updated_at', 'checkedAt', 'checked_at']),
     detail: getFirstString(payload, ['message', 'detail', 'service', 'name']),
   }
 }
 
-function StatusBadge({ healthy }: { healthy: boolean }) {
+function StatusBadge({ healthy, label }: { healthy: boolean; label: string }) {
   return (
     <span
       className={[
@@ -88,23 +84,35 @@ function StatusBadge({ healthy }: { healthy: boolean }) {
       ].join(' ')}
     >
       <span className={['h-2.5 w-2.5 rounded-full', healthy ? 'bg-emerald-500' : 'bg-rose-500'].join(' ')} aria-hidden="true" />
-      {healthy ? 'Operativo' : 'Atención'}
+      {label}
     </span>
   )
 }
 
 export default function Dashboard() {
+  const { t, i18n } = useTranslation('dashboard')
   const q = useQuery({ queryKey: ['health'], queryFn: health })
 
   const status = getStatusModel(asRecord(q.data))
   const fallbackUpdatedAt = q.dataUpdatedAt ? new Date(q.dataUpdatedAt) : null
   const lastUpdated = status.timestamp ?? fallbackUpdatedAt
-  const healthPreview = !q.data ? 'Sin respuesta todavía' : JSON.stringify(q.data, null, 2)
+  const healthPreview = !q.data ? t('statusCard.emptyResponse') : JSON.stringify(q.data, null, 2)
 
-  const statusTitle = q.isLoading ? 'Comprobando estado del sistema' : status.healthy ? 'Sistema activo' : 'Estado requiere revisión'
+  const statusTitle = q.isLoading
+    ? t('statusCard.loadingTitle')
+    : status.healthy
+      ? t('statusCard.healthyTitle')
+      : t('statusCard.unhealthyTitle')
   const statusCaption = q.isLoading
-    ? 'Validando conectividad y disponibilidad.'
-    : status.detail || 'Vista rápida del estado general expuesto por /health.'
+    ? t('statusCard.loadingCaption')
+    : status.detail || t('statusCard.fallbackCaption')
+  const guideSteps = [
+    t('guide.steps.step1'),
+    t('guide.steps.step2'),
+    t('guide.steps.step3'),
+    t('guide.steps.step4'),
+    t('guide.steps.step5'),
+  ]
 
   return (
     <div className="space-y-5">
@@ -132,33 +140,33 @@ export default function Dashboard() {
                     {status.healthy ? <Radio className="h-5 w-5" /> : <ShieldAlert className="h-5 w-5" />}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">Estado del sistema</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">{t('statusCard.eyebrow')}</p>
                     <h2 className="mt-1 text-xl font-semibold tracking-[-0.02em] text-[var(--text)] sm:text-2xl">{statusTitle}</h2>
                   </div>
                 </div>
                 <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">{statusCaption}</p>
               </div>
               <div className="hidden shrink-0 sm:block">
-                <StatusBadge healthy={status.healthy} />
+                <StatusBadge healthy={status.healthy} label={status.healthy ? t('statusCard.badgeHealthy') : t('statusCard.badgeUnhealthy')} />
               </div>
             </div>
 
             <div className="grid gap-4 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
               <div className="space-y-4">
                 <div className="sm:hidden">
-                  <StatusBadge healthy={status.healthy} />
+                  <StatusBadge healthy={status.healthy} label={status.healthy ? t('statusCard.badgeHealthy') : t('statusCard.badgeUnhealthy')} />
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[color:color-mix(in_srgb,var(--bg)_55%,white)] p-4">
+                  <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-soft)] p-4">
                     <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
                       <CheckCircle2 className="h-4 w-4" />
-                      Estado actual
+                      {t('statusCard.currentStatus')}
                     </div>
                     <div className="mt-3 flex items-center gap-3">
                       <span
                         className={[
-                          'h-3 w-3 rounded-full shadow-[0_0_0_4px_rgba(255,255,255,0.85)]',
+                          'h-3 w-3 rounded-full shadow-[0_0_0_4px_color-mix(in_srgb,var(--surface)_88%,transparent)]',
                           status.healthy ? 'bg-emerald-500' : 'bg-rose-500',
                         ].join(' ')}
                         aria-hidden="true"
@@ -167,36 +175,38 @@ export default function Dashboard() {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[color:color-mix(in_srgb,var(--bg)_55%,white)] p-4">
+                  <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-soft)] p-4">
                     <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
                       <Clock3 className="h-4 w-4" />
-                      Actualizado
+                      {t('statusCard.updatedAt')}
                     </div>
-                    <p className="mt-3 text-base font-semibold text-[var(--text)]">{formatTimestamp(lastUpdated)}</p>
+                    <p className="mt-3 text-base font-semibold text-[var(--text)]">
+                      {formatTimestamp(lastUpdated, i18n.resolvedLanguage || 'es', t('statusCard.notAvailable'))}
+                    </p>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[color:color-mix(in_srgb,var(--bg)_42%,white)] p-4">
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-soft)] p-4">
                   <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
                     <FileText className="h-4 w-4" />
-                    Respuesta técnica
+                    {t('statusCard.technicalResponse')}
                   </div>
                   <pre className="mt-3 max-h-64 overflow-auto rounded-xl bg-[var(--surface)] p-3 text-xs leading-6 text-[var(--muted)]">
-                    {q.isLoading ? 'Cargando estado...' : healthPreview}
+                    {q.isLoading ? t('statusCard.loadingResponse') : healthPreview}
                   </pre>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(244,248,247,0.72))] p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">Lectura rápida</p>
+              <div className="rounded-2xl border border-[var(--border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_92%,var(--surface-soft)),var(--surface-soft))] p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">{t('quickRead.eyebrow')}</p>
                 <div className="mt-3 space-y-3 text-sm text-[var(--muted)]">
-                  <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-2.5">
-                    <div className="font-semibold text-[var(--text)]">Visibilidad inmediata</div>
-                    <p className="mt-1 leading-6">Un vistazo rápido al estado operativo del panel sin salir del dashboard.</p>
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5">
+                    <div className="font-semibold text-[var(--text)]">{t('quickRead.visibilityTitle')}</div>
+                    <p className="mt-1 leading-6">{t('quickRead.visibilityText')}</p>
                   </div>
-                  <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-2.5">
-                    <div className="font-semibold text-[var(--text)]">Últimas acciones disponibles</div>
-                    <p className="mt-1 leading-6">Se notifican y revisan el histórico en la sección de auditorías.</p>
+                  <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5">
+                    <div className="font-semibold text-[var(--text)]">{t('quickRead.actionsTitle')}</div>
+                    <p className="mt-1 leading-6">{t('quickRead.actionsText')}</p>
                   </div>
                 </div>
               </div>
@@ -210,26 +220,26 @@ export default function Dashboard() {
               <FileText className="h-[18px] w-[18px]" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">Guía rápida</p>
-              <h2 className="mt-1 text-lg font-semibold tracking-[-0.02em] text-[var(--text)]">Flujo recomendado</h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                Resumen operativo del recorrido habitual para configurar cliente, landing y recepción de submissions.
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">{t('guide.eyebrow')}</p>
+              <h2 className="mt-1 text-lg font-semibold tracking-[-0.02em] text-[var(--text)]">{t('guide.title')}</h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{t('guide.subtitle')}</p>
             </div>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[color:color-mix(in_srgb,var(--bg)_45%,white)] p-4">
-            <div className="flex items-center justify-between gap-3 border-b border-[color:color-mix(in_srgb,var(--text)_8%,white)] pb-3">
+          <div className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface-soft)] p-4">
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] pb-3">
               <div>
-                <p className="text-sm font-semibold text-[var(--text)]">Secuencia sugerida</p>
-                <p className="mt-1 text-xs leading-5 text-[var(--muted)]">Sigue estos pasos para dejar operativa una nueva implementación.</p>
+                <p className="text-sm font-semibold text-[var(--text)]">{t('guide.sequenceTitle')}</p>
+                <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{t('guide.sequenceText')}</p>
               </div>
-              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[var(--muted)]">{GUIDE_STEPS.length} pasos</span>
+              <span className="rounded-full bg-[var(--surface)] px-2.5 py-1 text-xs font-semibold text-[var(--muted)]">
+                {t('guide.stepsLabel', { count: guideSteps.length })}
+              </span>
             </div>
 
             <ol className="mt-4 space-y-3">
-              {GUIDE_STEPS.map((step, index) => (
-                <li key={step} className="flex items-start gap-3 rounded-xl bg-white/80 px-3 py-3">
+              {guideSteps.map((step, index) => (
+                <li key={step} className="flex items-start gap-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-3">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[color:color-mix(in_srgb,var(--accent)_18%,white)] bg-[color:color-mix(in_srgb,var(--accent)_12%,white)] text-xs font-semibold text-[var(--accent)]">
                     {index + 1}
                   </span>
@@ -239,12 +249,9 @@ export default function Dashboard() {
             </ol>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-white/80 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">Resumen</p>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-              Cliente y landing son la base. El enlace de Telegram activa la conexión y las pruebas finales se validan desde el área
-              de landings o submissions.
-            </p>
+          <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-soft)] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">{t('guide.summaryEyebrow')}</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{t('guide.summaryText')}</p>
           </div>
         </Card>
       </div>

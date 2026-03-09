@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { createLanding, getLandingDetails, listLandings } from '../lib/api'
 import useClientsOptions from '../hooks/useClientsOptions'
 import useCursorPagination from '../hooks/useCursorPagination'
+import { getLanguageDateLocale } from '../i18n'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 import Toast from '../ui/Toast'
@@ -14,15 +16,16 @@ import Modal from '../ui/Modal'
 import { EmptyFeedback, ErrorFeedback, LoadingFeedback } from '../ui/Feedback'
 import PaginationControls from '../ui/PaginationControls'
 
-function fmtDate(ts: string) {
+function fmtDate(ts: string, locale: string) {
   try {
-    return new Date(ts).toLocaleString('es-ES')
+    return new Date(ts).toLocaleString(locale)
   } catch {
     return ts
   }
 }
 
 export default function Landings() {
+  const { t, i18n } = useTranslation(['landings', 'common'])
   const [selectedClientId, setSelectedClientId] = useState('')
   const [name, setName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
@@ -45,27 +48,28 @@ export default function Landings() {
   const [detailsReloadKey, setDetailsReloadKey] = useState(0)
   const [lastCreatedById, setLastCreatedById] = useState<Record<string, any>>({})
   const lastTriggerRef = useRef<HTMLElement | null>(null)
+  const dateLocale = getLanguageDateLocale(i18n.resolvedLanguage || i18n.language)
 
   const m = useMutation({
     mutationFn: async () => createLanding(selectedClientId, name),
     onSuccess: (r) => {
       setLastCreatedById((prev) => ({ ...prev, [r.landing.id]: r }))
-      setToast(`✅ Landing creada: ${r.landing.name}`)
+      setToast(`✅ ${t('landings:toasts.createSuccess', { name: r.landing.name })}`)
       setName('')
       resetPagination()
       setRefreshKey((k) => k + 1)
       setDetailsLandingId(r.landing.id)
       setIsDetailsOpen(true)
     },
-    onError: (e: any) => setToast(`❌ Error: ${e?.message || e}`),
+    onError: (e: any) => setToast(`❌ ${t('landings:toasts.createError', { message: e?.message || e })}`),
   })
 
-  const copy = async (t: string) => {
+  const copy = async (value: string) => {
     try {
-      await navigator.clipboard.writeText(t)
-      setToast('📋 Copiado al portapapeles')
+      await navigator.clipboard.writeText(value)
+      setToast(`📋 ${t('landings:toasts.copySuccess')}`)
     } catch {
-      setToast('No se pudo copiar al portapapeles')
+      setToast(t('landings:toasts.copyError'))
     }
   }
 
@@ -110,7 +114,7 @@ export default function Landings() {
       })
       .catch((e: any) => {
         if (!isCurrent) return
-        setError(e?.message || 'Error cargando landings')
+        setError(e?.message || t('landings:states.loadError'))
       })
       .finally(() => {
         if (!isCurrent) return
@@ -135,7 +139,7 @@ export default function Landings() {
       })
       .catch((e: any) => {
         if (!isCurrent) return
-        setDetailsError(e?.message || 'Error cargando detalle')
+        setDetailsError(e?.message || t('landings:states.detailLoadError'))
       })
       .finally(() => {
         if (!isCurrent) return
@@ -174,17 +178,17 @@ export default function Landings() {
   return (
     <div className="space-y-5">
       <Card className="space-y-4">
-        <div className="text-sm font-semibold text-[var(--text)]">Crear landing</div>
+        <div className="text-sm font-semibold text-[var(--text)]">{t('landings:create.title')}</div>
         <div className="grid gap-2.5 md:grid-cols-3">
           <EntitySelectField
-            label="Cliente"
+            label={t('landings:create.clientLabel')}
             value={selectedClientId}
             onChange={(e) => setSelectedClientId(e.target.value)}
             disabled={clientsLoading}
             id="landing-client-select"
             name="landing-client-select"
-            ariaLabel="Seleccionar cliente"
-            placeholder="Elija un cliente…"
+            ariaLabel={t('landings:create.clientAriaLabel')}
+            placeholder={t('landings:create.clientPlaceholder')}
             options={clients}
             helperText={
               clientsError && (
@@ -195,51 +199,59 @@ export default function Landings() {
                     className="underline"
                     onClick={() => setClientsRefreshKey((k) => k + 1)}
                   >
-                    Reintentar
+                    {t('common:actions.retry')}
                   </button>
                 </>
               )
             }
           />
           <div className="md:col-span-2">
-            <div className="mb-1 text-xs text-[var(--muted)]">Nombre</div>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre de la landing…" />
+            <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:create.nameLabel')}</div>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={t('landings:create.namePlaceholder')}
+            />
           </div>
         </div>
         <div>
           <Button onClick={() => m.mutate()} disabled={m.isPending || !selectedClientId.trim() || !name.trim()}>
-            {m.isPending ? 'Creando…' : 'Crear Landing'}
+            {m.isPending ? t('landings:actions.creating') : t('landings:actions.create')}
           </Button>
         </div>
       </Card>
 
       <Card className="space-y-4">
-        <div className="text-sm font-semibold text-[var(--text)]">Landings</div>
+        <div className="text-sm font-semibold text-[var(--text)]">{t('landings:list.title')}</div>
 
         {!selectedClientId ? (
-          <EmptyFeedback>Selecciona un cliente para ver sus landings.</EmptyFeedback>
+          <EmptyFeedback>{t('landings:states.selectClient')}</EmptyFeedback>
         ) : (
           <>
             <Input
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Buscar landing…"
-              aria-label="Buscar landing"
+              placeholder={t('landings:search.placeholder')}
+              aria-label={t('landings:search.ariaLabel')}
             />
 
             {loading ? (
-              <LoadingFeedback message="Cargando landings..." />
+              <LoadingFeedback message={t('landings:states.loading')} />
             ) : error ? (
-              <ErrorFeedback message={error} onRetry={() => setRefreshKey((k) => k + 1)} />
+              <ErrorFeedback
+                message={error}
+                onRetry={() => setRefreshKey((k) => k + 1)}
+                retryLabel={t('common:actions.retry')}
+              />
             ) : landingRows.length === 0 ? (
-              <EmptyFeedback>No hay landings para este cliente</EmptyFeedback>
+              <EmptyFeedback>{t('landings:states.empty')}</EmptyFeedback>
             ) : (
               <DataTable
                 columns={[
-                  { label: 'Nombre' },
-                  { label: 'ID' },
-                  { label: 'Created date' },
-                  { label: 'Actions', align: 'right' },
+                  { label: t('landings:table.columns.name') },
+                  { label: t('landings:table.columns.id') },
+                  { label: t('landings:table.columns.createdAt') },
+                  { label: t('landings:table.columns.actions'), align: 'right' },
                 ]}
               >
                   <tbody className="divide-y divide-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[var(--surface)]">
@@ -247,12 +259,12 @@ export default function Landings() {
                       <tr key={l.id}>
                         <td className="px-3 py-2 text-[var(--text)]">{l.name}</td>
                         <td className="px-3 py-2 font-mono text-xs text-[var(--muted)]">{l.id}</td>
-                        <td className="px-3 py-2 text-[var(--muted)]">{fmtDate(l.createdAt)}</td>
+                        <td className="px-3 py-2 text-[var(--muted)]">{fmtDate(l.createdAt, dateLocale)}</td>
                         <td className="px-3 py-2 text-right">
                           <button
                             type="button"
-                            aria-label={`Ver detalles de ${l.name}`}
-                            title="Ver detalles"
+                            aria-label={t('landings:list.viewDetailsFor', { name: l.name })}
+                            title={t('landings:list.viewDetails')}
                             onClick={(e) => openDetails(l.id, e.currentTarget)}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_12%,white)] text-sm text-[var(--muted)] transition-colors duration-200 ease-out hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)]"
                           >
@@ -266,11 +278,13 @@ export default function Landings() {
             )}
 
             <PaginationControls
-              pageLabel={`Página ${page}`}
+              pageLabel={t('landings:pagination.pageLabel', { page, total: cursorStack.length + 1 })}
               onPrevious={goPrevious}
               onNext={goNext}
               previousDisabled={loading || page <= 1 || cursorStack.length === 0}
               nextDisabled={loading || !nextCursor}
+              previousLabel={t('landings:pagination.previous')}
+              nextLabel={t('landings:pagination.next')}
             />
           </>
         )}
@@ -279,15 +293,16 @@ export default function Landings() {
       <Modal
         isOpen={isDetailsOpen}
         onClose={closeDetails}
-        title="Detalle de landing"
+        title={t('landings:detail.modalTitle')}
         returnFocusRef={lastTriggerRef}
       >
         {detailsLoading ? (
-          <LoadingFeedback message="Cargando detalle..." />
+          <LoadingFeedback message={t('landings:states.loadingDetail')} />
         ) : detailsError ? (
           <ErrorFeedback
             message={detailsError}
             onRetry={detailsLandingId ? () => setDetailsReloadKey((k) => k + 1) : undefined}
+            retryLabel={t('common:actions.retry')}
           />
         ) : (
           <div className="space-y-3">
@@ -295,10 +310,10 @@ export default function Landings() {
               <div className="text-sm font-semibold text-[var(--text)]">{landingName}</div>
               {modalLandingId && (
                 <div className="text-xs text-[var(--muted)]">
-                  landingId: <span className="font-mono">{modalLandingId}</span>
+                  {t('landings:labels.landingId')}: <span className="font-mono">{modalLandingId}</span>
                   {modalFormId ? (
                     <>
-                      {' '}• formId: <span className="font-mono">{modalFormId}</span>
+                      {' '}• {t('landings:labels.formId')}: <span className="font-mono">{modalFormId}</span>
                     </>
                   ) : null}
                 </div>
@@ -307,7 +322,7 @@ export default function Landings() {
 
             <div className="grid gap-3 md:grid-cols-2">
               <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-                <div className="text-xs text-[var(--muted)]">Telegram connect URL</div>
+                <div className="text-xs text-[var(--muted)]">{t('landings:labels.telegramConnectUrl')}</div>
                 <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{telegramConnectUrl || '-'}</div>
                 <div className="mt-2 flex gap-2">
                   {telegramConnectUrl && (
@@ -315,7 +330,7 @@ export default function Landings() {
                       className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
                       onClick={() => copy(telegramConnectUrl)}
                     >
-                      Copiar
+                      {t('landings:actions.copy')}
                     </Button>
                   )}
                   {telegramConnectUrl && (
@@ -325,14 +340,14 @@ export default function Landings() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      Abrir
+                      {t('landings:actions.open')}
                     </a>
                   )}
                 </div>
               </div>
 
               <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-                <div className="text-xs text-[var(--muted)]">Endpoint submit (landing+form)</div>
+                <div className="text-xs text-[var(--muted)]">{t('landings:labels.submitEndpoint')}</div>
                 <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{formEndpoint || '-'}</div>
                 <div className="mt-2 flex gap-2">
                   {formEndpoint && (
@@ -340,11 +355,11 @@ export default function Landings() {
                       className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
                       onClick={() => copy(formEndpoint)}
                     >
-                      Copiar
+                      {t('landings:actions.copy')}
                     </Button>
                   )}
                 </div>
-                <div className="mt-2 text-xs text-[var(--muted)]">Este endpoint ya incluye el formId.</div>
+                <div className="mt-2 text-xs text-[var(--muted)]">{t('landings:detail.endpointHelper')}</div>
               </div>
             </div>
 
@@ -354,7 +369,7 @@ export default function Landings() {
                   className="text-sm font-medium text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))] underline"
                   to={`/landings/${modalLandingId}`}
                 >
-                  Abrir detalle →
+                  {t('landings:actions.openDetail')} →
                 </Link>
               </div>
             )}

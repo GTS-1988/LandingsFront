@@ -1,0 +1,42 @@
+{
+  "statusCard": {
+    "eyebrow": "État du système",
+    "loadingTitle": "Vérification de l'état du système",
+    "healthyTitle": "Système actif",
+    "unhealthyTitle": "L'état nécessite une vérification",
+    "loadingCaption": "Validation de la connectivité et de la disponibilité.",
+    "fallbackCaption": "Vue rapide de l'état général exposé par /health.",
+    "badgeHealthy": "Opérationnel",
+    "badgeUnhealthy": "Attention",
+    "currentStatus": "État actuel",
+    "updatedAt": "Mis à jour",
+    "technicalResponse": "Réponse technique",
+    "loadingResponse": "Chargement de l'état...",
+    "emptyResponse": "Aucune réponse pour l'instant",
+    "notAvailable": "non disponible"
+  },
+  "quickRead": {
+    "eyebrow": "Lecture rapide",
+    "visibilityTitle": "Visibilité immédiate",
+    "visibilityText": "Un aperçu rapide de l'état opérationnel du panneau sans quitter le dashboard.",
+    "actionsTitle": "Dernières actions disponibles",
+    "actionsText": "Les notifications et l'historique sont disponibles dans la section audit."
+  },
+  "guide": {
+    "eyebrow": "Guide rapide",
+    "title": "Flux recommandé",
+    "subtitle": "Résumé opérationnel du parcours habituel pour configurer un client, une landing et la réception des submissions.",
+    "sequenceTitle": "Séquence suggérée",
+    "sequenceText": "Suivez ces étapes pour rendre une nouvelle implémentation opérationnelle.",
+    "stepsLabel": "{{count}} étapes",
+    "summaryEyebrow": "Résumé",
+    "summaryText": "Le client et la landing constituent la base. Le lien Telegram active la connexion et les tests finaux sont validés depuis les sections landings ou submissions.",
+    "steps": {
+      "step1": "Créez le client",
+      "step2": "Créez la landing (un formulaire par défaut est créé automatiquement)",
+      "step3": "Créez ou réutilisez un formulaire secondaire existant comme principal (optionnel)",
+      "step4": "Partagez l'URL Telegram Connect avec le client et demandez-lui d'appuyer sur Start",
+      "step5": "Testez les submissions depuis « Landings » ou « Submissions »"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "create": {
+    "title": "Criar cliente",
+    "subtitle": "O backend atual nao expõe listagem, edicao nem exclusao.",
+    "tip": "Dica: copie o id para criar uma landing."
+  },
+  "form": {
+    "nameLabel": "Nome do cliente",
+    "namePlaceholder": "Nome"
+  },
+  "actions": {
+    "create": "Criar",
+    "creating": "Criando..."
+  },
+  "list": {
+    "title": "Clientes"
+  },
+  "search": {
+    "placeholder": "Buscar cliente...",
+    "ariaLabel": "Buscar cliente"
+  },
+  "table": {
+    "columns": {
+      "name": "Nome",
+      "id": "ID",
+      "createdAt": "Data de criacao"
+    }
+  },
+  "pagination": {
+    "pageLabel": "Pagina {{page}}/{{total}}",
+    "previous": "Anterior",
+    "next": "Seguinte"
+  },
+  "states": {
+    "loading": "Carregando clientes...",
+    "empty": "Nao ha clientes disponiveis",
+    "loadError": "Erro ao carregar clientes"
+  },
+  "toasts": {
+    "createSuccess": "Cliente criado: {{name}} (id: {{id}})",
+    "createError": "Erro: {{message}}"
+  }
+}

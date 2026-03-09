@@ -1,0 +1,43 @@
+{
+  "create": {
+    "title": "Create client",
+    "subtitle": "The current backend does not expose listing, editing, or deletion.",
+    "tip": "Tip: copy the id to create a landing."
+  },
+  "form": {
+    "nameLabel": "Client name",
+    "namePlaceholder": "Name"
+  },
+  "actions": {
+    "create": "Create",
+    "creating": "Creating..."
+  },
+  "list": {
+    "title": "Clients"
+  },
+  "search": {
+    "placeholder": "Search client...",
+    "ariaLabel": "Search client"
+  },
+  "table": {
+    "columns": {
+      "name": "Name",
+      "id": "ID",
+      "createdAt": "Created at"
+    }
+  },
+  "pagination": {
+    "pageLabel": "Page {{page}}/{{total}}",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "states": {
+    "loading": "Loading clients...",
+    "empty": "No clients available",
+    "loadError": "Error loading clients"
+  },
+  "toasts": {
+    "createSuccess": "Client created: {{name}} (id: {{id}})",
+    "createError": "Error: {{message}}"
+  }
+}

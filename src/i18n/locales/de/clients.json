@@ -1,0 +1,43 @@
+{
+  "create": {
+    "title": "Kunden anlegen",
+    "subtitle": "Das aktuelle Backend bietet kein Listen, Bearbeiten oder Loeschen.",
+    "tip": "Hinweis: Kopieren Sie die id, um eine Landing zu erstellen."
+  },
+  "form": {
+    "nameLabel": "Kundenname",
+    "namePlaceholder": "Name"
+  },
+  "actions": {
+    "create": "Erstellen",
+    "creating": "Wird erstellt..."
+  },
+  "list": {
+    "title": "Kunden"
+  },
+  "search": {
+    "placeholder": "Kunden suchen...",
+    "ariaLabel": "Kunden suchen"
+  },
+  "table": {
+    "columns": {
+      "name": "Name",
+      "id": "ID",
+      "createdAt": "Erstellt am"
+    }
+  },
+  "pagination": {
+    "pageLabel": "Seite {{page}}/{{total}}",
+    "previous": "Zurueck",
+    "next": "Weiter"
+  },
+  "states": {
+    "loading": "Kunden werden geladen...",
+    "empty": "Keine Kunden verfuegbar",
+    "loadError": "Fehler beim Laden der Kunden"
+  },
+  "toasts": {
+    "createSuccess": "Kunde erstellt: {{name}} (id: {{id}})",
+    "createError": "Fehler: {{message}}"
+  }
+}

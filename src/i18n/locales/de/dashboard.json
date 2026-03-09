@@ -1,0 +1,42 @@
+{
+  "statusCard": {
+    "eyebrow": "Systemstatus",
+    "loadingTitle": "Systemstatus wird geprüft",
+    "healthyTitle": "System aktiv",
+    "unhealthyTitle": "Status muss überprüft werden",
+    "loadingCaption": "Konnektivität und Verfügbarkeit werden geprüft.",
+    "fallbackCaption": "Schneller Überblick über den von /health bereitgestellten Gesamtstatus.",
+    "badgeHealthy": "Betriebsbereit",
+    "badgeUnhealthy": "Achtung",
+    "currentStatus": "Aktueller Status",
+    "updatedAt": "Aktualisiert",
+    "technicalResponse": "Technische Antwort",
+    "loadingResponse": "Status wird geladen...",
+    "emptyResponse": "Noch keine Antwort",
+    "notAvailable": "nicht verfügbar"
+  },
+  "quickRead": {
+    "eyebrow": "Schnellüberblick",
+    "visibilityTitle": "Sofortige Sichtbarkeit",
+    "visibilityText": "Ein schneller Blick auf den Betriebsstatus des Panels, ohne das Dashboard zu verlassen.",
+    "actionsTitle": "Letzte verfügbare Aktionen",
+    "actionsText": "Benachrichtigungen und Verlauf können im Audit-Bereich eingesehen werden."
+  },
+  "guide": {
+    "eyebrow": "Kurzanleitung",
+    "title": "Empfohlener Ablauf",
+    "subtitle": "Operative Zusammenfassung des üblichen Ablaufs zur Konfiguration von Kunde, Landing und Submission-Eingang.",
+    "sequenceTitle": "Empfohlene Reihenfolge",
+    "sequenceText": "Folgen Sie diesen Schritten, um eine neue Implementierung betriebsbereit zu machen.",
+    "stepsLabel": "{{count}} Schritte",
+    "summaryEyebrow": "Zusammenfassung",
+    "summaryText": "Kunde und Landing bilden die Basis. Der Telegram-Link aktiviert die Verbindung und die abschließenden Tests werden im Bereich Landings oder Submissions geprüft.",
+    "steps": {
+      "step1": "Kunden anlegen",
+      "step2": "Landing erstellen (ein Standardformular wird automatisch erstellt)",
+      "step3": "Ein vorhandenes sekundäres Formular als primäres Formular erstellen oder wiederverwenden (optional)",
+      "step4": "Die Telegram-Connect-URL mit dem Kunden teilen und ihn bitten, auf Start zu drücken",
+      "step5": "Submissions in „Landings“ oder „Submissions“ testen"
+    }
+  }
+}

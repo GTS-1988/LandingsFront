@@ -1,0 +1,50 @@
+{
+  "filters": {
+    "clientLabel": "Kunde",
+    "clientPlaceholder": "Kunden auswählen…",
+    "clientAriaLabel": "Kunden auswählen",
+    "landingLabel": "Landing",
+    "landingPlaceholder": "Landing auswählen…",
+    "landingAriaLabel": "Landing auswählen",
+    "pageSizeLabel": "Seitengröße"
+  },
+  "list": {
+    "title": "Liste",
+    "count": "{{count}} Einträge",
+    "noSelectionCount": "-",
+    "formReference": "formId: {{id}}",
+    "unnamed": "(ohne Namen)"
+  },
+  "detail": {
+    "title": "Detail",
+    "empty": "Wählen Sie eine Submission aus der Liste aus.",
+    "idsTitle": "IDs",
+    "submissionId": "submissionId",
+    "landingId": "landingId",
+    "formId": "formId",
+    "fieldsTitle": "Felder",
+    "nameLabel": "Name",
+    "emailLabel": "E-Mail",
+    "phoneLabel": "Telefon",
+    "messageLabel": "Nachricht",
+    "rawDataTitle": "data (raw)",
+    "resendTitle": "Erneut senden, indem eine neue Submission mit demselben Payload erstellt wird"
+  },
+  "actions": {
+    "resend": "Erneut senden (neue Submission)",
+    "resending": "Wird erneut gesendet…"
+  },
+  "states": {
+    "selectLanding": "Wählen Sie eine Landing aus, um Submissions zu sehen",
+    "loading": "Submissions werden geladen...",
+    "loadingMore": "Weitere Submissions werden geladen...",
+    "empty": "Keine Submissions vorhanden",
+    "loadError": "Fehler beim Laden der Submissions",
+    "loadLandingsError": "Fehler beim Laden der Landings",
+    "endOfResults": "Keine weiteren Ergebnisse"
+  },
+  "toasts": {
+    "resendSuccess": "Erneutes Senden (neue Submission) gesendet",
+    "error": "Fehler: {{message}}"
+  }
+}

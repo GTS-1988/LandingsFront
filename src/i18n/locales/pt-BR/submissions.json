@@ -1,0 +1,50 @@
+{
+  "filters": {
+    "clientLabel": "Cliente",
+    "clientPlaceholder": "Escolha um cliente…",
+    "clientAriaLabel": "Selecionar cliente",
+    "landingLabel": "Landing",
+    "landingPlaceholder": "Escolha uma landing…",
+    "landingAriaLabel": "Selecionar landing",
+    "pageSizeLabel": "Tamanho da página"
+  },
+  "list": {
+    "title": "Lista",
+    "count": "{{count}} itens",
+    "noSelectionCount": "-",
+    "formReference": "formId: {{id}}",
+    "unnamed": "(sem nome)"
+  },
+  "detail": {
+    "title": "Detalhe",
+    "empty": "Selecione uma submission da lista.",
+    "idsTitle": "IDs",
+    "submissionId": "submissionId",
+    "landingId": "landingId",
+    "formId": "formId",
+    "fieldsTitle": "Campos",
+    "nameLabel": "Nome",
+    "emailLabel": "Email",
+    "phoneLabel": "Telefone",
+    "messageLabel": "Mensagem",
+    "rawDataTitle": "data (raw)",
+    "resendTitle": "Reenvia criando uma nova submission com o mesmo payload"
+  },
+  "actions": {
+    "resend": "Reenviar (nova submission)",
+    "resending": "Reenviando…"
+  },
+  "states": {
+    "selectLanding": "Selecione uma landing para ver submissions",
+    "loading": "Carregando submissions...",
+    "loadingMore": "Carregando mais submissions...",
+    "empty": "Não há submissions",
+    "loadError": "Erro ao carregar submissions",
+    "loadLandingsError": "Erro ao carregar landings",
+    "endOfResults": "Não há mais resultados"
+  },
+  "toasts": {
+    "resendSuccess": "Reenvio (nova submission) enviado",
+    "error": "Erro: {{message}}"
+  }
+}

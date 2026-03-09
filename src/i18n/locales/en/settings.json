@@ -1,0 +1,44 @@
+{
+  "page": {
+    "eyebrow": "Preferences",
+    "title": "Settings",
+    "subtitle": "Customize the panel visual experience and review the current account information."
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "Adjust the panel theme, language and typography scale. These changes only affect this browser.",
+    "themeTitle": "Theme",
+    "themeDescription": "Choose a light or dark surface to work more comfortably.",
+    "lightLabel": "Light",
+    "lightDescription": "Soft contrast and standard panel appearance.",
+    "darkLabel": "Dark",
+    "darkDescription": "Lower brightness for long sessions or low-light environments.",
+    "languageTitle": "Language",
+    "languageDescription": "Choose the visible interface language. The selection is stored automatically in this browser.",
+    "languageSelectLabel": "Interface language",
+    "languageSelectHelper": "The change applies immediately and is stored in this browser.",
+    "fontSizeTitle": "Font size",
+    "fontSizeDescription": "Adjust the overall text scale without modifying the panel structure.",
+    "fontSmallLabel": "Small",
+    "fontSmallDescription": "More information visible per screen.",
+    "fontMediumLabel": "Medium",
+    "fontMediumDescription": "Balance between density and readability.",
+    "fontLargeLabel": "Large",
+    "fontLargeDescription": "More comfortable reading and stronger visual presence."
+  },
+  "account": {
+    "title": "Account",
+    "description": "Information about the current session and identification data available on the frontend.",
+    "email": "Email",
+    "role": "Role",
+    "userId": "User ID"
+  },
+  "session": {
+    "title": "Session and security",
+    "description": "Manage the active session from a dedicated, easy-to-find block.",
+    "currentTitle": "Current session",
+    "currentDescription": "The session remains synchronized with the existing authentication system.",
+    "logoutDescription": "Close the current session on this device without modifying permissions or account settings.",
+    "logoutError": "Could not log out."
+  }
+}

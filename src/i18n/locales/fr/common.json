@@ -1,0 +1,63 @@
+{
+  "loading": {
+    "session": "Chargement de la session..."
+  },
+  "app": {
+    "backend": "Backend API Supabase"
+  },
+  "navigation": {
+    "title": "Navigation",
+    "open": "Ouvrir la navigation",
+    "close": "Fermer la navigation",
+    "expand": "Développer",
+    "collapse": "Réduire",
+    "dashboard": "Dashboard",
+    "clients": "Clients",
+    "landings": "Landings",
+    "submissions": "Submissions",
+    "audits": "Audit",
+    "settings": "Paramètres"
+  },
+  "routes": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "État général et flux recommandé"
+    },
+    "clients": {
+      "title": "Clients",
+      "subtitle": "Création rapide de clients pour de nouvelles landings"
+    },
+    "landings": {
+      "title": "Landings",
+      "subtitle": "Création de landings et URLs opérationnelles"
+    },
+    "landingDetail": {
+      "title": "Détail de la landing",
+      "subtitle": "Configurez les formulaires, la connexion et les tests d'envoi"
+    },
+    "submissions": {
+      "title": "Submissions",
+      "subtitle": "Consultation, détail et renvoi des soumissions"
+    },
+    "audits": {
+      "title": "Audit",
+      "subtitle": "Événements récents et traçabilité des changements"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "subtitle": "Préférences visuelles, compte et session"
+    }
+  },
+  "user": {
+    "fallbackName": "Utilisateur",
+    "activeSession": "Session active",
+    "role": "Rôle {{role}}"
+  },
+  "actions": {
+    "retry": "Réessayer",
+    "settings": "Paramètres",
+    "logout": "Se déconnecter",
+    "loggingOut": "Déconnexion...",
+    "logoutError": "Impossible de fermer la session."
+  }
+}

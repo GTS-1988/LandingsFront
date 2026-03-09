@@ -1,0 +1,50 @@
+{
+  "filters": {
+    "clientLabel": "Client",
+    "clientPlaceholder": "Choisissez un client…",
+    "clientAriaLabel": "Sélectionner un client",
+    "landingLabel": "Landing",
+    "landingPlaceholder": "Choisissez une landing…",
+    "landingAriaLabel": "Sélectionner une landing",
+    "pageSizeLabel": "Taille de page"
+  },
+  "list": {
+    "title": "Liste",
+    "count": "{{count}} éléments",
+    "noSelectionCount": "-",
+    "formReference": "formId : {{id}}",
+    "unnamed": "(sans nom)"
+  },
+  "detail": {
+    "title": "Détail",
+    "empty": "Sélectionnez une submission dans la liste.",
+    "idsTitle": "IDs",
+    "submissionId": "submissionId",
+    "landingId": "landingId",
+    "formId": "formId",
+    "fieldsTitle": "Champs",
+    "nameLabel": "Nom",
+    "emailLabel": "Email",
+    "phoneLabel": "Téléphone",
+    "messageLabel": "Message",
+    "rawDataTitle": "data (raw)",
+    "resendTitle": "Renvoyer en créant une nouvelle submission avec le même payload"
+  },
+  "actions": {
+    "resend": "Renvoyer (nouvelle submission)",
+    "resending": "Renvoi…"
+  },
+  "states": {
+    "selectLanding": "Sélectionnez une landing pour voir les submissions",
+    "loading": "Chargement des submissions...",
+    "loadingMore": "Chargement de plus de submissions...",
+    "empty": "Aucune submission",
+    "loadError": "Erreur de chargement des submissions",
+    "loadLandingsError": "Erreur de chargement des landings",
+    "endOfResults": "Il n’y a plus de résultats"
+  },
+  "toasts": {
+    "resendSuccess": "Renvoi (nouvelle submission) envoyé",
+    "error": "Erreur : {{message}}"
+  }
+}

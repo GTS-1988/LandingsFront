@@ -34,16 +34,16 @@ export default function Modal({ isOpen, title, onClose, returnFocusRef, children
       <button
         type="button"
         aria-label="Close modal backdrop"
-        className="absolute inset-0 bg-[color:color-mix(in_srgb,var(--text)_45%,white)]/25"
+        className="absolute inset-0 bg-black/30"
         onClick={onClose}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="relative z-10 w-full max-w-3xl rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_12%,white)] bg-[var(--surface)] shadow-[0_18px_46px_rgba(24,39,75,0.2)]"
+        className="relative z-10 w-full max-w-3xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-[0_24px_52px_rgba(var(--shadow-color),0.22)]"
       >
-        <div className="flex items-center justify-between border-b border-[color:color-mix(in_srgb,var(--accent)_18%,white)] px-4 py-3">
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
           <div className="text-sm font-semibold text-[var(--text)]">{title}</div>
           <button
             ref={closeRef}

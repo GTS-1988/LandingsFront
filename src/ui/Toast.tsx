@@ -9,7 +9,7 @@ export default function Toast({ message, onClose }: { message: string; onClose: 
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-5 right-5 z-50 rounded-2xl border border-[color:color-mix(in_srgb,var(--accent)_30%,white)] bg-[var(--surface)] px-4 py-3 text-sm font-medium text-[var(--text)] shadow-[0_10px_30px_rgba(24,39,75,0.14)]"
+      className="fixed bottom-5 right-5 z-50 rounded-2xl border border-[color:color-mix(in_srgb,var(--accent)_30%,white)] bg-[var(--surface)] px-4 py-3 text-sm font-medium text-[var(--text)] shadow-[0_16px_30px_rgba(var(--shadow-color),0.16)]"
     >
       {message}
     </div>

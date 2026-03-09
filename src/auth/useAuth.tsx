@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { ApiError, abortPendingApiFetchRequests, apiFetch, getAuthLoginUrl } from '../lib/api'
 
 export type AuthStatus = 'loading' | 'authed' | 'guest' | 'forbidden'
@@ -27,7 +27,6 @@ type AuthContextValue = {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
-let didInitialAuthRefresh = false
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<AuthStatus>('loading')
@@ -35,6 +34,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const [role, setRole] = useState<AuthRole>(null)
   const [proAuthEnabled, setProAuthEnabled] = useState<boolean | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const didRefreshRef = useRef(false)
   const authLoginUrl = getAuthLoginUrl()
 
   const setGuest = useCallback(() => {
@@ -99,8 +99,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [setGuest])
 
   useEffect(() => {
-    if (didInitialAuthRefresh) return
-    didInitialAuthRefresh = true
+    if (didRefreshRef.current) return
+    didRefreshRef.current = true
     void refresh()
   }, [refresh])
 

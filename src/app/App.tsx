@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Shell from './Shell'
 import Dashboard from '../pages/Dashboard'
 import Clients from '../pages/Clients'
@@ -11,11 +12,13 @@ import Settings from '../pages/Settings'
 import { useAuth } from '../auth/useAuth'
 
 function LoadingScreen() {
+  const { t } = useTranslation('common')
+
   return (
     <div className="flex min-h-dvh items-center justify-center bg-[var(--bg)] p-6">
       <div className="flex items-center gap-3 rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] px-5 py-4 text-sm text-[var(--muted)]">
         <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[color:color-mix(in_srgb,var(--text)_22%,white)] border-t-[var(--accent)]" />
-        Cargando sesión...
+        {t('loading.session')}
       </div>
     </div>
   )

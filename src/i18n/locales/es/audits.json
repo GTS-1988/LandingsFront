@@ -1,0 +1,54 @@
+{
+  "page": {
+    "title": "Auditoría",
+    "subtitle": "Se cargan primero los eventos no leídos y se marcan como leídos al entrar en esta sección."
+  },
+  "actions": {
+    "viewRecentHistory": "Ver historial reciente",
+    "backToUnread": "Volver a no leídas"
+  },
+  "status": {
+    "showingHistory": "Mostrando historial reciente",
+    "showingUnread": "Mostrando eventos pendientes de revisar",
+    "loadingHistory": "Cargando historial...",
+    "updatingTable": "Actualizando tabla...",
+    "showingRecentCount": "Mostrando los 50 eventos más recientes disponibles.",
+    "initialBatchProcessed": "La tanda inicial cargada ya fue procesada para sincronizar su estado de lectura.",
+    "recentEventsLoaded": "Eventos recientes cargados desde auditoría."
+  },
+  "states": {
+    "loading": "Cargando eventos...",
+    "emptyUnread": "No hay eventos pendientes de revisar",
+    "emptyHistory": "No hay eventos recientes",
+    "loadError": "Error cargando auditoría",
+    "historyError": "No se pudo cargar el historial reciente.",
+    "markReadError": "No se pudieron marcar como leídos los eventos cargados."
+  },
+  "table": {
+    "columns": {
+      "type": "Tipo",
+      "entity": "Entidad",
+      "reference": "Referencia",
+      "clientLanding": "Cliente / Landing",
+      "date": "Fecha",
+      "summary": "Resumen"
+    }
+  },
+  "eventTypes": {
+    "clientCreated": "Cliente creado",
+    "landingCreated": "Landing creada",
+    "submissionCreated": "Nueva submission",
+    "recorded": "Evento registrado"
+  },
+  "summary": {
+    "clientCreatedWithName": "Cliente creado: {{name}}",
+    "clientCreated": "Cliente creado",
+    "landingCreatedWithName": "Landing creada: {{name}}",
+    "landingCreated": "Landing creada",
+    "submissionCreated": "Nueva submission recibida",
+    "submissionForm": "Formulario {{reference}}",
+    "landingReference": "Landing {{reference}}",
+    "reference": "Ref. {{reference}}",
+    "unknown": "Evento registrado"
+  }
+}

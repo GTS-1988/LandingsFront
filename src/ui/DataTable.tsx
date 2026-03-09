@@ -12,9 +12,9 @@ type DataTableProps = {
 
 export default function DataTable({ columns, children }: DataTableProps) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)]">
-      <table className="min-w-full divide-y divide-[color:color-mix(in_srgb,var(--text)_10%,white)] text-sm">
-        <thead className="bg-[color:color-mix(in_srgb,var(--bg)_72%,white)]">
+    <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+      <table className="min-w-full divide-y divide-[var(--border)] text-sm">
+        <thead className="bg-[var(--surface-soft)]">
           <tr>
             {columns.map((column) => (
               <th

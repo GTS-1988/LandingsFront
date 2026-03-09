@@ -1,0 +1,44 @@
+{
+  "page": {
+    "eyebrow": "Préférences",
+    "title": "Paramètres",
+    "subtitle": "Personnalisez l'expérience visuelle du panneau et consultez les informations du compte actuel."
+  },
+  "appearance": {
+    "title": "Apparence",
+    "description": "Ajustez le thème, la langue et l'échelle typographique du panneau. Ces changements n'affectent que ce navigateur.",
+    "themeTitle": "Thème",
+    "themeDescription": "Choisissez une surface claire ou sombre pour travailler plus confortablement.",
+    "lightLabel": "Clair",
+    "lightDescription": "Contraste doux et apparence standard du panneau.",
+    "darkLabel": "Sombre",
+    "darkDescription": "Moins de luminosité pour les longues sessions ou les environnements peu éclairés.",
+    "languageTitle": "Langue",
+    "languageDescription": "Choisissez la langue visible de l'interface. La sélection est enregistrée automatiquement dans ce navigateur.",
+    "languageSelectLabel": "Langue de l'interface",
+    "languageSelectHelper": "Le changement s'applique immédiatement et est enregistré dans ce navigateur.",
+    "fontSizeTitle": "Taille de police",
+    "fontSizeDescription": "Ajustez l'échelle générale du texte sans modifier la structure du panneau.",
+    "fontSmallLabel": "Petite",
+    "fontSmallDescription": "Plus d'informations visibles à l'écran.",
+    "fontMediumLabel": "Moyenne",
+    "fontMediumDescription": "Équilibre entre densité et lisibilité.",
+    "fontLargeLabel": "Grande",
+    "fontLargeDescription": "Lecture plus confortable et présence visuelle renforcée."
+  },
+  "account": {
+    "title": "Compte",
+    "description": "Informations sur la session actuelle et données d'identification disponibles dans le frontend.",
+    "email": "Email",
+    "role": "Rôle",
+    "userId": "User ID"
+  },
+  "session": {
+    "title": "Session et sécurité",
+    "description": "Gérez la session active depuis un bloc dédié et facile à trouver.",
+    "currentTitle": "Session actuelle",
+    "currentDescription": "La session reste synchronisée avec le système d'authentification existant.",
+    "logoutDescription": "Fermez la session actuelle sur cet appareil sans modifier les autorisations ni les paramètres du compte.",
+    "logoutError": "Impossible de fermer la session."
+  }
+}

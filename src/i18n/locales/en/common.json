@@ -1,0 +1,63 @@
+{
+  "loading": {
+    "session": "Loading session..."
+  },
+  "app": {
+    "backend": "Supabase API backend"
+  },
+  "navigation": {
+    "title": "Navigation",
+    "open": "Open navigation",
+    "close": "Close navigation",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "dashboard": "Dashboard",
+    "clients": "Clients",
+    "landings": "Landings",
+    "submissions": "Submissions",
+    "audits": "Audits",
+    "settings": "Settings"
+  },
+  "routes": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "General status and recommended flow"
+    },
+    "clients": {
+      "title": "Clients",
+      "subtitle": "Quick client onboarding for new landings"
+    },
+    "landings": {
+      "title": "Landings",
+      "subtitle": "Landing creation and operational URLs"
+    },
+    "landingDetail": {
+      "title": "Landing detail",
+      "subtitle": "Configure forms, connectivity and delivery tests"
+    },
+    "submissions": {
+      "title": "Submissions",
+      "subtitle": "Review, inspect and resend submissions"
+    },
+    "audits": {
+      "title": "Audits",
+      "subtitle": "Recent events and change traceability"
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Visual preferences, account and session"
+    }
+  },
+  "user": {
+    "fallbackName": "User",
+    "activeSession": "Active session",
+    "role": "Role {{role}}"
+  },
+  "actions": {
+    "retry": "Retry",
+    "settings": "Settings",
+    "logout": "Log out",
+    "loggingOut": "Logging out...",
+    "logoutError": "Could not log out."
+  }
+}

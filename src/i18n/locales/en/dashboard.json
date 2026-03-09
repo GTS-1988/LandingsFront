@@ -1,0 +1,42 @@
+{
+  "statusCard": {
+    "eyebrow": "System status",
+    "loadingTitle": "Checking system status",
+    "healthyTitle": "System active",
+    "unhealthyTitle": "Status needs review",
+    "loadingCaption": "Validating connectivity and availability.",
+    "fallbackCaption": "Quick view of the general status exposed by /health.",
+    "badgeHealthy": "Operational",
+    "badgeUnhealthy": "Attention",
+    "currentStatus": "Current status",
+    "updatedAt": "Updated",
+    "technicalResponse": "Technical response",
+    "loadingResponse": "Loading status...",
+    "emptyResponse": "No response yet",
+    "notAvailable": "not available"
+  },
+  "quickRead": {
+    "eyebrow": "Quick read",
+    "visibilityTitle": "Immediate visibility",
+    "visibilityText": "A quick glance at the panel operational status without leaving the dashboard.",
+    "actionsTitle": "Latest available actions",
+    "actionsText": "Notifications and history review are available in the audits section."
+  },
+  "guide": {
+    "eyebrow": "Quick guide",
+    "title": "Recommended flow",
+    "subtitle": "Operational summary of the usual path to configure a client, landing and submission intake.",
+    "sequenceTitle": "Suggested sequence",
+    "sequenceText": "Follow these steps to leave a new implementation ready to operate.",
+    "stepsLabel": "{{count}} steps",
+    "summaryEyebrow": "Summary",
+    "summaryText": "Client and landing are the base. The Telegram link activates the connection and the final tests are validated from the landings or submissions area.",
+    "steps": {
+      "step1": "Create client",
+      "step2": "Create landing (a default Form is created automatically)",
+      "step3": "Create or reuse an existing secondary form as primary (optional)",
+      "step4": "Share the Telegram Connect URL with the client and ask them to press Start",
+      "step5": "Test submissions from “Landings” or “Submissions”"
+    }
+  }
+}

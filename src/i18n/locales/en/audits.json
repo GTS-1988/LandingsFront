@@ -1,0 +1,54 @@
+{
+  "page": {
+    "title": "Audits",
+    "subtitle": "Unread events are loaded first and marked as read when entering this section."
+  },
+  "actions": {
+    "viewRecentHistory": "View recent history",
+    "backToUnread": "Back to unread"
+  },
+  "status": {
+    "showingHistory": "Showing recent history",
+    "showingUnread": "Showing events pending review",
+    "loadingHistory": "Loading history...",
+    "updatingTable": "Updating table...",
+    "showingRecentCount": "Showing the latest 50 available events.",
+    "initialBatchProcessed": "The initial loaded batch was already processed to sync its read state.",
+    "recentEventsLoaded": "Recent events loaded from audits."
+  },
+  "states": {
+    "loading": "Loading events...",
+    "emptyUnread": "No pending events to review",
+    "emptyHistory": "No recent events",
+    "loadError": "Error loading audits",
+    "historyError": "Could not load recent history.",
+    "markReadError": "Could not mark the loaded events as read."
+  },
+  "table": {
+    "columns": {
+      "type": "Type",
+      "entity": "Entity",
+      "reference": "Reference",
+      "clientLanding": "Client / Landing",
+      "date": "Date",
+      "summary": "Summary"
+    }
+  },
+  "eventTypes": {
+    "clientCreated": "Client created",
+    "landingCreated": "Landing created",
+    "submissionCreated": "New submission",
+    "recorded": "Event recorded"
+  },
+  "summary": {
+    "clientCreatedWithName": "Client created: {{name}}",
+    "clientCreated": "Client created",
+    "landingCreatedWithName": "Landing created: {{name}}",
+    "landingCreated": "Landing created",
+    "submissionCreated": "New submission received",
+    "submissionForm": "Form {{reference}}",
+    "landingReference": "Landing {{reference}}",
+    "reference": "Ref. {{reference}}",
+    "unknown": "Event recorded"
+  }
+}

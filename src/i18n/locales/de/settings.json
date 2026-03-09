@@ -1,0 +1,44 @@
+{
+  "page": {
+    "eyebrow": "Präferenzen",
+    "title": "Einstellungen",
+    "subtitle": "Passen Sie das visuelle Nutzungserlebnis des Panels an und prüfen Sie die Informationen des aktuellen Kontos."
+  },
+  "appearance": {
+    "title": "Darstellung",
+    "description": "Passen Sie Thema, Sprache und Typografieskalierung des Panels an. Diese Änderungen betreffen nur diesen Browser.",
+    "themeTitle": "Thema",
+    "themeDescription": "Wählen Sie eine helle oder dunkle Oberfläche für komfortableres Arbeiten.",
+    "lightLabel": "Hell",
+    "lightDescription": "Sanfter Kontrast und Standarddarstellung des Panels.",
+    "darkLabel": "Dunkel",
+    "darkDescription": "Weniger Helligkeit für lange Sitzungen oder Umgebungen mit wenig Licht.",
+    "languageTitle": "Sprache",
+    "languageDescription": "Wählen Sie die sichtbare Sprache der Oberfläche. Die Auswahl wird automatisch in diesem Browser gespeichert.",
+    "languageSelectLabel": "Sprache der Oberfläche",
+    "languageSelectHelper": "Die Änderung wird sofort angewendet und in diesem Browser gespeichert.",
+    "fontSizeTitle": "Schriftgröße",
+    "fontSizeDescription": "Passen Sie die allgemeine Textskalierung an, ohne die Struktur des Panels zu verändern.",
+    "fontSmallLabel": "Klein",
+    "fontSmallDescription": "Mehr Informationen pro Bildschirm sichtbar.",
+    "fontMediumLabel": "Mittel",
+    "fontMediumDescription": "Ausgewogenes Verhältnis zwischen Dichte und Lesbarkeit.",
+    "fontLargeLabel": "Groß",
+    "fontLargeDescription": "Komfortableres Lesen und stärkere visuelle Präsenz."
+  },
+  "account": {
+    "title": "Konto",
+    "description": "Informationen zur aktuellen Sitzung und Identifikationsdaten, die im Frontend verfügbar sind.",
+    "email": "Email",
+    "role": "Rolle",
+    "userId": "User ID"
+  },
+  "session": {
+    "title": "Sitzung und Sicherheit",
+    "description": "Verwalten Sie die aktive Sitzung in einem eigenen, leicht auffindbaren Bereich.",
+    "currentTitle": "Aktuelle Sitzung",
+    "currentDescription": "Die Sitzung bleibt mit dem bestehenden Authentifizierungssystem synchronisiert.",
+    "logoutDescription": "Beenden Sie die aktuelle Sitzung auf diesem Gerät, ohne Berechtigungen oder Kontoeinstellungen zu ändern.",
+    "logoutError": "Die Sitzung konnte nicht beendet werden."
+  }
+}

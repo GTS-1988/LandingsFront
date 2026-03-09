@@ -1,0 +1,63 @@
+{
+  "loading": {
+    "session": "Sitzung wird geladen..."
+  },
+  "app": {
+    "backend": "Supabase API-Backend"
+  },
+  "navigation": {
+    "title": "Navigation",
+    "open": "Navigation öffnen",
+    "close": "Navigation schließen",
+    "expand": "Erweitern",
+    "collapse": "Einklappen",
+    "dashboard": "Dashboard",
+    "clients": "Kunden",
+    "landings": "Landings",
+    "submissions": "Submissions",
+    "audits": "Audit",
+    "settings": "Einstellungen"
+  },
+  "routes": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Allgemeiner Status und empfohlener Ablauf"
+    },
+    "clients": {
+      "title": "Kunden",
+      "subtitle": "Schnelles Anlegen von Kunden für neue Landings"
+    },
+    "landings": {
+      "title": "Landings",
+      "subtitle": "Erstellung von Landings und operativen URLs"
+    },
+    "landingDetail": {
+      "title": "Landing-Detail",
+      "subtitle": "Formulare, Verbindung und Sendetests konfigurieren"
+    },
+    "submissions": {
+      "title": "Submissions",
+      "subtitle": "Anfragen prüfen, im Detail ansehen und erneut senden"
+    },
+    "audits": {
+      "title": "Audit",
+      "subtitle": "Aktuelle Ereignisse und Nachvollziehbarkeit von Änderungen"
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "subtitle": "Visuelle Präferenzen, Konto und Sitzung"
+    }
+  },
+  "user": {
+    "fallbackName": "Benutzer",
+    "activeSession": "Aktive Sitzung",
+    "role": "Rolle {{role}}"
+  },
+  "actions": {
+    "retry": "Erneut versuchen",
+    "settings": "Einstellungen",
+    "logout": "Abmelden",
+    "loggingOut": "Abmeldung...",
+    "logoutError": "Die Sitzung konnte nicht beendet werden."
+  }
+}

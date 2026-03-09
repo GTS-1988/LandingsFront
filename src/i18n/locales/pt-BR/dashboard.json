@@ -1,0 +1,42 @@
+{
+  "statusCard": {
+    "eyebrow": "Status do sistema",
+    "loadingTitle": "Verificando status do sistema",
+    "healthyTitle": "Sistema ativo",
+    "unhealthyTitle": "O status requer revisão",
+    "loadingCaption": "Validando conectividade e disponibilidade.",
+    "fallbackCaption": "Visão rápida do status geral exposto por /health.",
+    "badgeHealthy": "Operacional",
+    "badgeUnhealthy": "Atenção",
+    "currentStatus": "Status atual",
+    "updatedAt": "Atualizado",
+    "technicalResponse": "Resposta técnica",
+    "loadingResponse": "Carregando status...",
+    "emptyResponse": "Ainda sem resposta",
+    "notAvailable": "indisponível"
+  },
+  "quickRead": {
+    "eyebrow": "Leitura rápida",
+    "visibilityTitle": "Visibilidade imediata",
+    "visibilityText": "Uma visão rápida do status operacional do painel sem sair do dashboard.",
+    "actionsTitle": "Últimas ações disponíveis",
+    "actionsText": "Notificações e histórico podem ser consultados na seção de auditoria."
+  },
+  "guide": {
+    "eyebrow": "Guia rápido",
+    "title": "Fluxo recomendado",
+    "subtitle": "Resumo operacional do fluxo habitual para configurar cliente, landing e recebimento de submissions.",
+    "sequenceTitle": "Sequência sugerida",
+    "sequenceText": "Siga estes passos para deixar uma nova implantação pronta para operar.",
+    "stepsLabel": "{{count}} etapas",
+    "summaryEyebrow": "Resumo",
+    "summaryText": "Cliente e landing são a base. O link do Telegram ativa a conexão e os testes finais são validados nas áreas de landings ou submissions.",
+    "steps": {
+      "step1": "Crie o cliente",
+      "step2": "Crie a landing (um formulário padrão é criado automaticamente)",
+      "step3": "Crie ou reutilize um formulário secundário existente como principal (opcional)",
+      "step4": "Compartilhe a URL de conexão do Telegram com o cliente e peça para pressionar Start",
+      "step5": "Teste as submissions em “Landings” ou “Submissions”"
+    }
+  }
+}

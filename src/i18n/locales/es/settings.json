@@ -1,0 +1,44 @@
+{
+  "page": {
+    "eyebrow": "Preferencias",
+    "title": "Ajustes",
+    "subtitle": "Personaliza la experiencia visual del panel y revisa la información de tu cuenta actual."
+  },
+  "appearance": {
+    "title": "Apariencia",
+    "description": "Ajusta el tema, el idioma y la escala tipográfica del panel. Estos cambios solo afectan a este navegador.",
+    "themeTitle": "Tema",
+    "themeDescription": "Elige una superficie clara u oscura para trabajar más cómodo.",
+    "lightLabel": "Claro",
+    "lightDescription": "Contraste suave y aspecto estándar del panel.",
+    "darkLabel": "Oscuro",
+    "darkDescription": "Menor brillo para sesiones prolongadas o entornos con poca luz.",
+    "languageTitle": "Idioma",
+    "languageDescription": "Selecciona el idioma visible de la interfaz. La elección se guarda automáticamente en este navegador.",
+    "languageSelectLabel": "Idioma de la interfaz",
+    "languageSelectHelper": "El cambio se aplica al instante y se guarda en este navegador.",
+    "fontSizeTitle": "Tamaño de fuente",
+    "fontSizeDescription": "Ajusta la escala general del texto sin modificar la estructura del panel.",
+    "fontSmallLabel": "Pequeña",
+    "fontSmallDescription": "Más información visible por pantalla.",
+    "fontMediumLabel": "Media",
+    "fontMediumDescription": "Equilibrio entre densidad y lectura.",
+    "fontLargeLabel": "Grande",
+    "fontLargeDescription": "Lectura más cómoda y mayor presencia visual."
+  },
+  "account": {
+    "title": "Cuenta",
+    "description": "Información de la sesión actual y datos de identificación disponibles en el frontend.",
+    "email": "Email",
+    "role": "Rol",
+    "userId": "User ID"
+  },
+  "session": {
+    "title": "Sesión y seguridad",
+    "description": "Gestiona la sesión activa desde un bloque dedicado y fácil de localizar.",
+    "currentTitle": "Sesión actual",
+    "currentDescription": "La sesión se mantiene sincronizada con el sistema de autenticación existente.",
+    "logoutDescription": "Cierra la sesión actual en este dispositivo sin modificar permisos ni configuración de cuenta.",
+    "logoutError": "No se pudo cerrar sesión."
+  }
+}

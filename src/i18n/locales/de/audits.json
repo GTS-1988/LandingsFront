@@ -1,0 +1,54 @@
+{
+  "page": {
+    "title": "Audit",
+    "subtitle": "Ungelesene Ereignisse werden zuerst geladen und beim Betreten dieses Bereichs als gelesen markiert."
+  },
+  "actions": {
+    "viewRecentHistory": "Aktuellen Verlauf anzeigen",
+    "backToUnread": "Zurück zu ungelesen"
+  },
+  "status": {
+    "showingHistory": "Aktueller Verlauf wird angezeigt",
+    "showingUnread": "Ereignisse zur Prüfung werden angezeigt",
+    "loadingHistory": "Verlauf wird geladen...",
+    "updatingTable": "Tabelle wird aktualisiert...",
+    "showingRecentCount": "Die letzten 50 verfügbaren Ereignisse werden angezeigt.",
+    "initialBatchProcessed": "Die zuerst geladene Gruppe wurde bereits verarbeitet, um den Lesestatus zu synchronisieren.",
+    "recentEventsLoaded": "Aktuelle Ereignisse aus dem Audit geladen."
+  },
+  "states": {
+    "loading": "Ereignisse werden geladen...",
+    "emptyUnread": "Keine ausstehenden Ereignisse zur Prüfung",
+    "emptyHistory": "Keine aktuellen Ereignisse",
+    "loadError": "Fehler beim Laden des Audits",
+    "historyError": "Der aktuelle Verlauf konnte nicht geladen werden.",
+    "markReadError": "Die geladenen Ereignisse konnten nicht als gelesen markiert werden."
+  },
+  "table": {
+    "columns": {
+      "type": "Typ",
+      "entity": "Entität",
+      "reference": "Referenz",
+      "clientLanding": "Kunde / Landing",
+      "date": "Datum",
+      "summary": "Zusammenfassung"
+    }
+  },
+  "eventTypes": {
+    "clientCreated": "Kunde erstellt",
+    "landingCreated": "Landing erstellt",
+    "submissionCreated": "Neue Submission",
+    "recorded": "Ereignis erfasst"
+  },
+  "summary": {
+    "clientCreatedWithName": "Kunde erstellt: {{name}}",
+    "clientCreated": "Kunde erstellt",
+    "landingCreatedWithName": "Landing erstellt: {{name}}",
+    "landingCreated": "Landing erstellt",
+    "submissionCreated": "Neue Submission eingegangen",
+    "submissionForm": "Formular {{reference}}",
+    "landingReference": "Landing {{reference}}",
+    "reference": "Ref. {{reference}}",
+    "unknown": "Ereignis erfasst"
+  }
+}

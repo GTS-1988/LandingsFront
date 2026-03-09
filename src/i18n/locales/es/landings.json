@@ -1,0 +1,108 @@
+{
+  "create": {
+    "title": "Crear landing",
+    "clientLabel": "Cliente",
+    "clientAriaLabel": "Seleccionar cliente",
+    "clientPlaceholder": "Elija un cliente…",
+    "nameLabel": "Nombre",
+    "namePlaceholder": "Nombre de la landing…"
+  },
+  "actions": {
+    "create": "Crear landing",
+    "creating": "Creando…",
+    "copy": "Copiar",
+    "open": "Abrir",
+    "openDetail": "Abrir detalle",
+    "createForm": "+ Crear formulario",
+    "creatingForm": "Creando…",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "copyEndpoint": "Copiar endpoint",
+    "makePrimary": "Marcar como principal",
+    "test": "Test",
+    "sendTest": "Enviar test",
+    "sendingTest": "Enviando…"
+  },
+  "list": {
+    "title": "Landings",
+    "viewDetails": "Ver detalles",
+    "viewDetailsFor": "Ver detalles de {{name}}"
+  },
+  "search": {
+    "placeholder": "Buscar landing…",
+    "ariaLabel": "Buscar landing"
+  },
+  "table": {
+    "columns": {
+      "name": "Nombre",
+      "id": "ID",
+      "createdAt": "Fecha de creación",
+      "actions": "Acciones"
+    }
+  },
+  "pagination": {
+    "pageLabel": "Página {{page}}",
+    "previous": "Anterior",
+    "next": "Siguiente"
+  },
+  "detail": {
+    "modalTitle": "Detalle de landing",
+    "endpointHelper": "Este endpoint ya incluye el formId.",
+    "telegramStatusTitle": "Estado Telegram",
+    "telegramHelper": "Comparte el deep link con el cliente para conectar el chat.",
+    "createFormHelper": "Backend: POST /admin/landings/:landingId/forms",
+    "testSubmitHelper": "POST /forms/:landingId/:formId/submit",
+    "testFormPlaceholder": "Selecciona un formId"
+  },
+  "sections": {
+    "primaryForm": "Formulario principal",
+    "formsCount": "Formularios de la landing ({{count}})",
+    "createForm": "Crear formulario",
+    "testSubmit": "Test de envío"
+  },
+  "labels": {
+    "landingId": "landingId",
+    "formId": "formId",
+    "telegramConnectUrl": "URL de conexión de Telegram",
+    "submitEndpoint": "Endpoint de envío (landing+form)",
+    "primaryEndpoint": "Endpoint principal",
+    "endpoint": "Endpoint",
+    "fieldsJson": "Campos (JSON)",
+    "payloadJson": "Payload (JSON)",
+    "destination": "Destino"
+  },
+  "status": {
+    "connected": "✅ Conectado",
+    "disconnected": "❌ No conectado",
+    "primary": "Principal"
+  },
+  "states": {
+    "selectClient": "Selecciona un cliente para ver sus landings.",
+    "loading": "Cargando landings...",
+    "loadingDetail": "Cargando detalle...",
+    "empty": "No hay landings para este cliente",
+    "loadError": "Error cargando landings",
+    "detailLoadError": "Error cargando detalle",
+    "notFound": "Landing no encontrada"
+  },
+  "confirmations": {
+    "makePrimary": "El endpoint principal de esta landing pasará a este formulario. ¿Continuar?"
+  },
+  "toasts": {
+    "createSuccess": "Landing creada: {{name}}",
+    "createError": "Error: {{message}}",
+    "copySuccess": "Copiado al portapapeles",
+    "copyError": "No se pudo copiar al portapapeles",
+    "formCreated": "Form creado",
+    "formCreateError": "Error: {{message}}",
+    "formUpdated": "Form actualizado",
+    "formUpdateError": "Error: {{message}}",
+    "primaryUpdated": "Formulario principal actualizado",
+    "primaryUpdateError": "Error: {{message}}",
+    "selectedForTest": "Seleccionado para test",
+    "invalidFieldsJson": "Fields JSON inválido",
+    "testSubmitSuccess": "Envío OK: {{result}}",
+    "testSubmitDeliveredFallback": "¿Entregado? {{value}}",
+    "testSubmitError": "Error: {{message}}"
+  }
+}
