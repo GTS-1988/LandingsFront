@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Client, createClient, listClients } from '../lib/api'
+import useCursorPagination from '../hooks/useCursorPagination'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 import Toast from '../ui/Toast'
 import { Card } from '../ui/Card'
+import DataTable from '../ui/DataTable'
+import { EmptyFeedback, ErrorFeedback, LoadingFeedback } from '../ui/Feedback'
+import PaginationControls from '../ui/PaginationControls'
 
 function fmtDate(ts: string) {
   try {
@@ -22,19 +26,15 @@ export default function Clients() {
   const [clients, setClients] = useState<Client[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [cursor, setCursor] = useState<string | null>(null)
-  const [nextCursor, setNextCursor] = useState<string | null>(null)
-  const [cursorStack, setCursorStack] = useState<string[]>([])
-  const [page, setPage] = useState(1)
   const [refreshKey, setRefreshKey] = useState(0)
+  const { cursor, nextCursor, setNextCursor, cursorStack, page, resetPagination, goNext, goPrevious } =
+    useCursorPagination(loading)
 
   const m = useMutation({
     mutationFn: async () => createClient(name),
     onSuccess: (c) => {
       setToast(`✅ Cliente creado: ${c.name} (id: ${c.id})`)
-      setCursor(null)
-      setCursorStack([])
-      setPage(1)
+      resetPagination()
       setRefreshKey((k) => k + 1)
     },
     onError: (e: any) => setToast(`❌ Error: ${e?.message || e}`),
@@ -44,12 +44,10 @@ export default function Clients() {
     const t = setTimeout(() => {
       const next = searchInput.trim()
       setSearchDebounced(next)
-      setCursor(null)
-      setCursorStack([])
-      setPage(1)
+      resetPagination()
     }, 400)
     return () => clearTimeout(t)
-  }, [searchInput])
+  }, [searchInput, resetPagination])
 
   useEffect(() => {
     let isCurrent = true
@@ -75,22 +73,6 @@ export default function Clients() {
       isCurrent = false
     }
   }, [searchDebounced, cursor, refreshKey])
-
-  const goNext = () => {
-    if (!nextCursor || loading) return
-    setCursorStack((prev) => [...prev, cursor || ''])
-    setCursor(nextCursor)
-    setPage((p) => p + 1)
-  }
-
-  const goPrevious = () => {
-    if (!cursorStack.length || loading) return
-    const nextStack = [...cursorStack]
-    const prevCursor = nextStack.pop() || ''
-    setCursorStack(nextStack)
-    setCursor(prevCursor || null)
-    setPage((p) => Math.max(1, p - 1))
-  }
 
   return (
     <div className="space-y-5">
@@ -123,34 +105,13 @@ export default function Clients() {
         />
 
         {loading ? (
-          <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[color:color-mix(in_srgb,var(--text)_18%,white)] border-t-[var(--accent)]" />
-            Cargando clientes...
-          </div>
+          <LoadingFeedback message="Cargando clientes..." />
         ) : error ? (
-          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-            <div className="text-sm text-[var(--text)]">{error}</div>
-            <Button
-              className="mt-3"
-              onClick={() => setRefreshKey((k) => k + 1)}
-            >
-              Reintentar
-            </Button>
-          </div>
+          <ErrorFeedback message={error} onRetry={() => setRefreshKey((k) => k + 1)} />
         ) : clients.length === 0 ? (
-          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3 text-sm text-[var(--muted)]">
-            No existen clientes actualmente
-          </div>
+          <EmptyFeedback>No existen clientes actualmente</EmptyFeedback>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)]">
-            <table className="min-w-full divide-y divide-[color:color-mix(in_srgb,var(--text)_10%,white)] text-sm">
-              <thead className="bg-[color:color-mix(in_srgb,var(--bg)_72%,white)]">
-                <tr>
-                  <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">Nombre</th>
-                  <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">ID</th>
-                  <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">Fecha Creación</th>
-                </tr>
-              </thead>
+          <DataTable columns={[{ label: 'Nombre' }, { label: 'ID' }, { label: 'Fecha Creación' }]}>
               <tbody className="divide-y divide-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[var(--surface)]">
                 {clients.map((c) => (
                   <tr key={c.id}>
@@ -160,25 +121,17 @@ export default function Clients() {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+          </DataTable>
         )}
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="text-sm text-[var(--muted)]">Página {page}/{cursorStack.length +1}</div>
-          <div className="flex items-center gap-2">
-            <Button
-              className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)] disabled:border-[color:color-mix(in_srgb,var(--text)_12%,white)] disabled:bg-[color:color-mix(in_srgb,var(--bg)_70%,white)] disabled:text-[var(--muted)] disabled:opacity-100"
-              onClick={goPrevious}
-              disabled={loading || page <= 1 || cursorStack.length === 0}
-            >
-              Previous
-            </Button>
-            <Button onClick={goNext} disabled={loading || !nextCursor}>
-              Siguiente
-            </Button>
-          </div>
-        </div>
+        <PaginationControls
+          pageLabel={`Página ${page}/${cursorStack.length + 1}`}
+          onPrevious={goPrevious}
+          onNext={goNext}
+          previousDisabled={loading || page <= 1 || cursorStack.length === 0}
+          nextDisabled={loading || !nextCursor}
+          nextLabel="Siguiente"
+        />
       </Card>
 
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}

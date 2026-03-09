@@ -23,7 +23,7 @@ function Item({
   collapsed?: boolean
   onNavigate?: () => void
 }) {
-  const hasBadge = typeof badgeCount === 'number' && badgeCount > 0
+  const hasBadge = (badgeCount ?? 0) > 0
   const badgeLabel = badgeCount && badgeCount > 99 ? '99+' : String(badgeCount ?? 0)
 
   return (

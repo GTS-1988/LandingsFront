@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Client, listClients, listLandings, listSubmissions, submitForm, Submission } from '../lib/api'
+import { listLandings, listSubmissions, submitForm, Submission } from '../lib/api'
+import useClientsOptions from '../hooks/useClientsOptions'
 import { Card } from '../ui/Card'
 import Button from '../ui/Button'
+import EntitySelectField from '../ui/EntitySelectField'
+import { EmptyFeedback, ErrorFeedback, LoadingFeedback } from '../ui/Feedback'
+import SelectField from '../ui/SelectField'
 import Toast from '../ui/Toast'
 
 function fmt(ts: string) {
@@ -14,9 +18,7 @@ function fmt(ts: string) {
 }
 
 export default function Submissions() {
-  const [clients, setClients] = useState<Client[]>([])
-  const [clientsLoading, setClientsLoading] = useState(false)
-  const [clientsError, setClientsError] = useState<string | null>(null)
+  const { clients, clientsLoading, clientsError } = useClientsOptions()
   const [selectedClientId, setSelectedClientId] = useState('')
 
   const [landings, setLandings] = useState<Array<{ id: string; name: string; clientId: string; createdAt: string }>>([])
@@ -80,30 +82,6 @@ export default function Submissions() {
     setSubmissionsError(null)
     setSelectedSubmissionId(null)
   }
-
-  useEffect(() => {
-    let isCurrent = true
-    setClientsLoading(true)
-    setClientsError(null)
-
-    listClients({ take: 200 })
-      .then((res) => {
-        if (!isCurrent) return
-        setClients(res.clients || [])
-      })
-      .catch((e: any) => {
-        if (!isCurrent) return
-        setClientsError(e?.message || 'Error cargando clientes')
-      })
-      .finally(() => {
-        if (!isCurrent) return
-        setClientsLoading(false)
-      })
-
-    return () => {
-      isCurrent = false
-    }
-  }, [])
 
   useEffect(() => {
     setSelectedLandingId('')
@@ -203,67 +181,48 @@ export default function Submissions() {
     <div className="space-y-5">
       <Card className="space-y-3">
         <div className="grid gap-2.5 md:grid-cols-3">
-          <div>
-            <div className="mb-1 text-xs text-[var(--muted)]">Cliente</div>
-            <select
-              value={selectedClientId}
-              onChange={(e) => setSelectedClientId(e.target.value)}
-              disabled={clientsLoading}
-              className="w-full rounded-xl border border-[color:color-mix(in_srgb,var(--text)_14%,white)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)] disabled:opacity-60"
-              id="submissions-client-select"
-              name="submissions-client-select"
-            >
-              <option value="">Elija un cliente…</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            {clientsError && <div className="mt-1 text-xs text-[var(--muted)]">{clientsError}</div>}
-          </div>
+          <EntitySelectField
+            label="Cliente"
+            value={selectedClientId}
+            onChange={(e) => setSelectedClientId(e.target.value)}
+            disabled={clientsLoading}
+            id="submissions-client-select"
+            name="submissions-client-select"
+            placeholder="Elija un cliente…"
+            options={clients}
+            helperText={clientsError}
+          />
 
-          <div>
-            <div className="mb-1 text-xs text-[var(--muted)]">Landing</div>
-            <select
-              value={selectedLandingId}
-              onChange={(e) => {
-                setSelectedLandingId(e.target.value)
-                resetSubmissionState()
-              }}
-              disabled={!selectedClientId || landingsLoading}
-              className="w-full rounded-xl border border-[color:color-mix(in_srgb,var(--text)_14%,white)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)] disabled:opacity-60"
-              id="submissions-landing-select"
-              name="submissions-landing-select"
-            >
-              <option value="">Elija una landing…</option>
-              {landings.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name}
-                </option>
-              ))}
-            </select>
-            {landingsError && <div className="mt-1 text-xs text-[var(--muted)]">{landingsError}</div>}
-          </div>
+          <EntitySelectField
+            label="Landing"
+            value={selectedLandingId}
+            onChange={(e) => {
+              setSelectedLandingId(e.target.value)
+              resetSubmissionState()
+            }}
+            disabled={!selectedClientId || landingsLoading}
+            id="submissions-landing-select"
+            name="submissions-landing-select"
+            placeholder="Elija una landing…"
+            options={landings}
+            helperText={landingsError}
+          />
 
-          <div>
-            <div className="mb-1 text-xs text-[var(--muted)]">Page size (take)</div>
-            <select
-              value={String(pageSize)}
-              onChange={(e) => {
-                setPageSize(parseInt(e.target.value, 10))
-                resetSubmissionState()
-              }}
-              className="w-full rounded-xl border border-[color:color-mix(in_srgb,var(--text)_14%,white)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)]"
-              id="submissions-page-size-select"
-              name="submissions-page-size-select"
-            >
+          <SelectField
+            label="Page size (take)"
+            value={String(pageSize)}
+            onChange={(e) => {
+              setPageSize(parseInt(e.target.value, 10))
+              resetSubmissionState()
+            }}
+            id="submissions-page-size-select"
+            name="submissions-page-size-select"
+          >
               <option value="25">25</option>
               <option value="50">50</option>
               <option value="100">100</option>
               <option value="200">200</option>
-            </select>
-          </div>
+          </SelectField>
         </div>
 
       </Card>
@@ -275,25 +234,13 @@ export default function Submissions() {
 
           <div ref={listRootRef} className="min-h-0 flex-1 space-y-2 overflow-auto">
             {!selectedLandingId ? (
-              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3 text-sm text-[var(--muted)]">
-                Seleccione una landing para ver submissions
-              </div>
+              <EmptyFeedback>Seleccione una landing para ver submissions</EmptyFeedback>
             ) : loadingInitial ? (
-              <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[color:color-mix(in_srgb,var(--text)_18%,white)] border-t-[var(--accent)]" />
-                Cargando submissions...
-              </div>
+              <LoadingFeedback message="Cargando submissions..." />
             ) : submissionsError ? (
-              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-                <div className="text-sm text-[var(--text)]">{submissionsError}</div>
-                <Button className="mt-3" onClick={() => setRefreshKey((k) => k + 1)}>
-                  Reintentar
-                </Button>
-              </div>
+              <ErrorFeedback message={submissionsError} onRetry={() => setRefreshKey((k) => k + 1)} />
             ) : submissions.length === 0 ? (
-              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3 text-sm text-[var(--muted)]">
-                No hay submissions
-              </div>
+              <EmptyFeedback>No hay submissions</EmptyFeedback>
             ) : (
               <>
                 <div className="space-y-2">

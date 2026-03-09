@@ -4,7 +4,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
   {
-    ignores: ['dist/**', 'backend/**', 'render/**', 'returns/**', 'window.location.href'],
+    ignores: ['dist/**', 'backend/**', 'render/**', 'returns/**', 'window.location.href', 'src/**/*.{ts,tsx}', 'vite.config.ts'],
   },
   js.configs.recommended,
   {

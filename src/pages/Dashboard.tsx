@@ -45,11 +45,20 @@ function getFirstDate(payload: HealthPayload, keys: string[]) {
 }
 
 function formatTimestamp(date: Date | null) {
-  if (!date) return 'Sin fecha disponible'
-  return new Intl.DateTimeFormat('es-ES', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+  if (!date) return 'no disponible'
+
+  const datePart = new Intl.DateTimeFormat('es-ES', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
   }).format(date)
+  const timePart = new Intl.DateTimeFormat('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(date)
+
+  return `${datePart} · ${timePart}`
 }
 
 function getStatusModel(payload: HealthPayload) {
@@ -68,7 +77,7 @@ function getStatusModel(payload: HealthPayload) {
   }
 }
 
-function StatusBadge({ healthy, label }: { healthy: boolean; label: string }) {
+function StatusBadge({ healthy }: { healthy: boolean }) {
   return (
     <span
       className={[
@@ -88,6 +97,8 @@ export default function Dashboard() {
   const q = useQuery({ queryKey: ['health'], queryFn: health })
 
   const status = getStatusModel(asRecord(q.data))
+  const fallbackUpdatedAt = q.dataUpdatedAt ? new Date(q.dataUpdatedAt) : null
+  const lastUpdated = status.timestamp ?? fallbackUpdatedAt
   const healthPreview = !q.data ? 'Sin respuesta todavía' : JSON.stringify(q.data, null, 2)
 
   const statusTitle = q.isLoading ? 'Comprobando estado del sistema' : status.healthy ? 'Sistema activo' : 'Estado requiere revisión'
@@ -128,14 +139,14 @@ export default function Dashboard() {
                 <p className="max-w-2xl text-sm leading-6 text-[var(--muted)]">{statusCaption}</p>
               </div>
               <div className="hidden shrink-0 sm:block">
-                <StatusBadge healthy={status.healthy} label={status.label} />
+                <StatusBadge healthy={status.healthy} />
               </div>
             </div>
 
             <div className="grid gap-4 px-5 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
               <div className="space-y-4">
                 <div className="sm:hidden">
-                  <StatusBadge healthy={status.healthy} label={status.label} />
+                  <StatusBadge healthy={status.healthy} />
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -161,7 +172,7 @@ export default function Dashboard() {
                       <Clock3 className="h-4 w-4" />
                       Actualizado
                     </div>
-                    <p className="mt-3 text-base font-semibold text-[var(--text)]">{formatTimestamp(status.timestamp)}</p>
+                    <p className="mt-3 text-base font-semibold text-[var(--text)]">{formatTimestamp(lastUpdated)}</p>
                   </div>
                 </div>
 

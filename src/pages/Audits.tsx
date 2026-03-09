@@ -4,6 +4,7 @@ import { AuditEvent, listAuditEvents, markAuditEventsAsRead } from '../lib/api'
 import { useAuth } from '../auth/useAuth'
 import { Card } from '../ui/Card'
 import Button from '../ui/Button'
+import { EmptyFeedback, ErrorFeedback, LoadingFeedback } from '../ui/Feedback'
 import Toast from '../ui/Toast'
 
 const INITIAL_TAKE = 50
@@ -165,7 +166,7 @@ function getStatusLabel(showingHistory: boolean) {
   return showingHistory ? 'Mostrando historial reciente' : 'Mostrando eventos pendientes de revisar'
 }
 
-export default function Auditoria() {
+export default function Audits() {
   const { user, proAuthEnabled } = useAuth()
   const queryClient = useQueryClient()
   const requestIdRef = useRef(0)
@@ -213,7 +214,7 @@ export default function Auditoria() {
         return
       }
 
-      const eventIds = nextEvents.map((event) => event.id).filter(Boolean)
+      const eventIds = nextEvents.map(({ id }) => id).filter(Boolean)
       const batchKey = eventIds.join(',')
 
       if (!eventIds.length || markedBatchRef.current === batchKey) {
@@ -331,22 +332,14 @@ export default function Auditoria() {
 
         {loading ? (
           <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-4">
-            <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[color:color-mix(in_srgb,var(--text)_18%,white)] border-t-[var(--accent)]" />
-              Cargando eventos...
-            </div>
+            <LoadingFeedback message="Cargando eventos..." />
           </div>
         ) : error ? (
-          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-            <div className="text-sm text-[var(--text)]">{error}</div>
-            <Button className="mt-3" type="button" onClick={retryCurrentMode}>
-              Reintentar
-            </Button>
-          </div>
+          <ErrorFeedback message={error} onRetry={retryCurrentMode} />
         ) : events.length === 0 ? (
-          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-4 text-sm text-[var(--muted)]">
+          <EmptyFeedback className="p-4">
             {getEmptyMessage(showingHistory)}
-          </div>
+          </EmptyFeedback>
         ) : (
           <div className="min-w-0 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">

@@ -5,7 +5,7 @@ import Clients from '../pages/Clients'
 import Landings from '../pages/Landings'
 import LandingDetail from '../pages/LandingDetail'
 import Submissions from '../pages/Submissions'
-import Auditoria from '../pages/Auditoria'
+import Audits from '../pages/Audits'
 import Login from '../pages/Login'
 import Settings from '../pages/Settings'
 import { useAuth } from '../auth/useAuth'
@@ -42,7 +42,7 @@ export default function App() {
         <Route path="/landings" element={<Landings />} />
         <Route path="/landings/:landingId" element={<LandingDetail />} />
         <Route path="/submissions" element={<Submissions />} />
-        <Route path="/auditoria" element={<Auditoria />} />
+        <Route path="/auditoria" element={<Audits />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

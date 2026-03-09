@@ -86,8 +86,12 @@ export default function LandingDetail() {
   })
 
   const copy = async (t: string) => {
-    await navigator.clipboard.writeText(t)
-    setToast('📋 Copiado')
+    try {
+      await navigator.clipboard.writeText(t)
+      setToast('📋 Copiado')
+    } catch {
+      setToast('No se pudo copiar al portapapeles')
+    }
   }
 
   if (q.isLoading) return <div className="text-sm text-[var(--muted)]">Cargando…</div>

@@ -5,7 +5,7 @@ import { useAuth } from '../auth/useAuth'
 
 export default function Settings() {
   const navigate = useNavigate()
-  const { user, role, proAuthEnabled, logout } = useAuth()
+  const { user, role, logout } = useAuth()
   const [logoutError, setLogoutError] = useState<string | null>(null)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
@@ -33,9 +33,6 @@ export default function Settings() {
         </p>
         <p>
           <strong>User ID:</strong> {user?.userId || '-'}
-        </p>
-        <p>
-          <strong>PRO auth habilitado:</strong> {String(proAuthEnabled)}
         </p>
       </div>
 

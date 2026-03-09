@@ -23,7 +23,7 @@ function normalizeApiBase(raw: string | undefined) {
 }
 
 export function resolveV1BaseUrl() {
-  // In dev we prefer Vite proxy to keep cookies same-site.
+  //Vite proxy to keep cookies same-site.
   if (import.meta.env.DEV) return '/v1'
   const base = normalizeApiBase(env.apiBaseUrl)
   if (!base) return '/v1'

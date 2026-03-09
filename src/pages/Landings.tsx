@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import { Client, createLanding, getLandingDetails, listClients, listLandings } from '../lib/api'
+import { createLanding, getLandingDetails, listLandings } from '../lib/api'
+import useClientsOptions from '../hooks/useClientsOptions'
+import useCursorPagination from '../hooks/useCursorPagination'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 import Toast from '../ui/Toast'
 import { Card } from '../ui/Card'
+import DataTable from '../ui/DataTable'
+import EntitySelectField from '../ui/EntitySelectField'
 import { Link } from 'react-router-dom'
 import Modal from '../ui/Modal'
+import { EmptyFeedback, ErrorFeedback, LoadingFeedback } from '../ui/Feedback'
+import PaginationControls from '../ui/PaginationControls'
 
 function fmtDate(ts: string) {
   try {
@@ -20,21 +26,17 @@ export default function Landings() {
   const [selectedClientId, setSelectedClientId] = useState('')
   const [name, setName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
-  const [clients, setClients] = useState<Client[]>([])
-  const [clientsLoading, setClientsLoading] = useState(false)
-  const [clientsError, setClientsError] = useState<string | null>(null)
   const [clientsRefreshKey, setClientsRefreshKey] = useState(0)
+  const { clients, clientsLoading, clientsError } = useClientsOptions(clientsRefreshKey)
 
   const [searchInput, setSearchInput] = useState('')
   const [searchDebounced, setSearchDebounced] = useState('')
   const [landingRows, setLandingRows] = useState<Array<{ id: string; name: string; clientId: string; createdAt: string }>>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [cursor, setCursor] = useState<string | null>(null)
-  const [nextCursor, setNextCursor] = useState<string | null>(null)
-  const [cursorStack, setCursorStack] = useState<string[]>([])
-  const [page, setPage] = useState(1)
   const [refreshKey, setRefreshKey] = useState(0)
+  const { cursor, nextCursor, setNextCursor, cursorStack, page, resetPagination, goNext, goPrevious } =
+    useCursorPagination(loading)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [detailsLandingId, setDetailsLandingId] = useState<string | null>(null)
   const [detailsLoading, setDetailsLoading] = useState(false)
@@ -50,9 +52,7 @@ export default function Landings() {
       setLastCreatedById((prev) => ({ ...prev, [r.landing.id]: r }))
       setToast(`✅ Landing creada: ${r.landing.name}`)
       setName('')
-      setCursor(null)
-      setCursorStack([])
-      setPage(1)
+      resetPagination()
       setRefreshKey((k) => k + 1)
       setDetailsLandingId(r.landing.id)
       setIsDetailsOpen(true)
@@ -61,54 +61,29 @@ export default function Landings() {
   })
 
   const copy = async (t: string) => {
-    await navigator.clipboard.writeText(t)
-    setToast('📋 Copiado al portapapeles')
-  }
-
-  useEffect(() => {
-    let isCurrent = true
-    setClientsLoading(true)
-    setClientsError(null)
-
-    listClients({ take: 200 })
-      .then((res) => {
-        if (!isCurrent) return
-        setClients(res.clients || [])
-      })
-      .catch((e: any) => {
-        if (!isCurrent) return
-        setClientsError(e?.message || 'Error cargando clientes')
-      })
-      .finally(() => {
-        if (!isCurrent) return
-        setClientsLoading(false)
-      })
-
-    return () => {
-      isCurrent = false
+    try {
+      await navigator.clipboard.writeText(t)
+      setToast('📋 Copiado al portapapeles')
+    } catch {
+      setToast('No se pudo copiar al portapapeles')
     }
-  }, [clientsRefreshKey])
+  }
 
   useEffect(() => {
     const t = setTimeout(() => {
       setSearchDebounced(searchInput.trim())
-      setCursor(null)
-      setCursorStack([])
-      setPage(1)
+      resetPagination()
     }, 400)
     return () => clearTimeout(t)
-  }, [searchInput])
+  }, [searchInput, resetPagination])
 
   useEffect(() => {
     setSearchInput('')
     setSearchDebounced('')
-    setCursor(null)
-    setNextCursor(null)
-    setCursorStack([])
-    setPage(1)
+    resetPagination(true)
     setLandingRows([])
     setError(null)
-  }, [selectedClientId])
+  }, [selectedClientId, resetPagination])
 
   useEffect(() => {
     if (!selectedClientId) {
@@ -146,22 +121,6 @@ export default function Landings() {
       isCurrent = false
     }
   }, [selectedClientId, searchDebounced, cursor, refreshKey])
-
-  const goNext = () => {
-    if (!nextCursor || loading) return
-    setCursorStack((prev) => [...prev, cursor || ''])
-    setCursor(nextCursor)
-    setPage((p) => p + 1)
-  }
-
-  const goPrevious = () => {
-    if (!cursorStack.length || loading) return
-    const nextStack = [...cursorStack]
-    const prevCursor = nextStack.pop() || ''
-    setCursorStack(nextStack)
-    setCursor(prevCursor || null)
-    setPage((p) => Math.max(1, p - 1))
-  }
 
   useEffect(() => {
     if (!isDetailsOpen || !detailsLandingId) return
@@ -217,37 +176,31 @@ export default function Landings() {
       <Card className="space-y-4">
         <div className="text-sm font-semibold text-[var(--text)]">Crear landing</div>
         <div className="grid gap-2.5 md:grid-cols-3">
-          <div>
-            <div className="mb-1 text-xs text-[var(--muted)]">Cliente</div>
-            <select
-              value={selectedClientId}
-              onChange={(e) => setSelectedClientId(e.target.value)}
-              disabled={clientsLoading}
-              className="w-full rounded-xl border border-[color:color-mix(in_srgb,var(--text)_14%,white)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)] disabled:opacity-60"
-              aria-label="Seleccionar cliente"
-              id="landing-client-select"
-              name="landing-client-select"
-            >
-              <option value="">Elija un cliente…</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            {clientsError && (
-              <div className="mt-2 text-xs text-[var(--muted)]">
-                {clientsError}{' '}
-                <button
-                  type="button"
-                  className="underline"
-                  onClick={() => setClientsRefreshKey((k) => k + 1)}
-                >
-                  Reintentar
-                </button>
-              </div>
-            )}
-          </div>
+          <EntitySelectField
+            label="Cliente"
+            value={selectedClientId}
+            onChange={(e) => setSelectedClientId(e.target.value)}
+            disabled={clientsLoading}
+            id="landing-client-select"
+            name="landing-client-select"
+            ariaLabel="Seleccionar cliente"
+            placeholder="Elija un cliente…"
+            options={clients}
+            helperText={
+              clientsError && (
+                <>
+                  {clientsError}{' '}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => setClientsRefreshKey((k) => k + 1)}
+                  >
+                    Reintentar
+                  </button>
+                </>
+              )
+            }
+          />
           <div className="md:col-span-2">
             <div className="mb-1 text-xs text-[var(--muted)]">Nombre</div>
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nombre de la landing…" />
@@ -264,9 +217,7 @@ export default function Landings() {
         <div className="text-sm font-semibold text-[var(--text)]">Landings</div>
 
         {!selectedClientId ? (
-          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3 text-sm text-[var(--muted)]">
-            Selecciona un cliente para ver sus landings.
-          </div>
+          <EmptyFeedback>Selecciona un cliente para ver sus landings.</EmptyFeedback>
         ) : (
           <>
             <Input
@@ -277,32 +228,20 @@ export default function Landings() {
             />
 
             {loading ? (
-              <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-[color:color-mix(in_srgb,var(--text)_18%,white)] border-t-[var(--accent)]" />
-                Cargando landings...
-              </div>
+              <LoadingFeedback message="Cargando landings..." />
             ) : error ? (
-              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-                <div className="text-sm text-[var(--text)]">{error}</div>
-                <Button className="mt-3" onClick={() => setRefreshKey((k) => k + 1)}>
-                  Reintentar
-                </Button>
-              </div>
+              <ErrorFeedback message={error} onRetry={() => setRefreshKey((k) => k + 1)} />
             ) : landingRows.length === 0 ? (
-              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3 text-sm text-[var(--muted)]">
-                No hay landings para este cliente
-              </div>
+              <EmptyFeedback>No hay landings para este cliente</EmptyFeedback>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)]">
-                <table className="min-w-full divide-y divide-[color:color-mix(in_srgb,var(--text)_10%,white)] text-sm">
-                  <thead className="bg-[color:color-mix(in_srgb,var(--bg)_72%,white)]">
-                    <tr>
-                      <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">Nombre</th>
-                      <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">ID</th>
-                      <th className="px-3 py-2 text-left font-semibold text-[var(--text)]">Created date</th>
-                      <th className="px-3 py-2 text-right font-semibold text-[var(--text)]">Actions</th>
-                    </tr>
-                  </thead>
+              <DataTable
+                columns={[
+                  { label: 'Nombre' },
+                  { label: 'ID' },
+                  { label: 'Created date' },
+                  { label: 'Actions', align: 'right' },
+                ]}
+              >
                   <tbody className="divide-y divide-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[var(--surface)]">
                     {landingRows.map((l) => (
                       <tr key={l.id}>
@@ -323,25 +262,16 @@ export default function Landings() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+              </DataTable>
             )}
 
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm text-[var(--muted)]">Página {page}</div>
-              <div className="flex items-center gap-2">
-                <Button
-                  className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)] disabled:border-[color:color-mix(in_srgb,var(--text)_12%,white)] disabled:bg-[color:color-mix(in_srgb,var(--bg)_70%,white)] disabled:text-[var(--muted)] disabled:opacity-100"
-                  onClick={goPrevious}
-                  disabled={loading || page <= 1 || cursorStack.length === 0}
-                >
-                  Previous
-                </Button>
-                <Button onClick={goNext} disabled={loading || !nextCursor}>
-                  Next
-                </Button>
-              </div>
-            </div>
+            <PaginationControls
+              pageLabel={`Página ${page}`}
+              onPrevious={goPrevious}
+              onNext={goNext}
+              previousDisabled={loading || page <= 1 || cursorStack.length === 0}
+              nextDisabled={loading || !nextCursor}
+            />
           </>
         )}
       </Card>
@@ -353,22 +283,12 @@ export default function Landings() {
         returnFocusRef={lastTriggerRef}
       >
         {detailsLoading ? (
-          <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[color:color-mix(in_srgb,var(--text)_18%,white)] border-t-[var(--accent)]" />
-            Cargando detalle...
-          </div>
+          <LoadingFeedback message="Cargando detalle..." />
         ) : detailsError ? (
-          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-            <div className="text-sm text-[var(--text)]">{detailsError}</div>
-            {detailsLandingId && (
-              <Button
-                className="mt-3"
-                onClick={() => setDetailsReloadKey((k) => k + 1)}
-              >
-                Reintentar
-              </Button>
-            )}
-          </div>
+          <ErrorFeedback
+            message={detailsError}
+            onRetry={detailsLandingId ? () => setDetailsReloadKey((k) => k + 1) : undefined}
+          />
         ) : (
           <div className="space-y-3">
             <div>
