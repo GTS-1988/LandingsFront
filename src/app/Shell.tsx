@@ -1,7 +1,10 @@
-import { PropsWithChildren, useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Users, PanelsTopLeft, Inbox, PanelLeftClose, PanelLeftOpen, Menu, X } from 'lucide-react'
+import { PropsWithChildren, useEffect, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { LayoutDashboard, Users, PanelsTopLeft, Inbox, History, PanelLeftClose, PanelLeftOpen, Menu, X } from 'lucide-react'
 import { cx } from '../lib/cx'
+import { useAuth } from '../auth/useAuth'
+import { getAuditUnreadCount } from '../lib/api'
 
 const SIDEBAR_COLLAPSED_KEY = 'landing-admin.sidebar-collapsed'
 
@@ -9,15 +12,20 @@ function Item({
   to,
   icon: Icon,
   label,
+  badgeCount,
   collapsed,
   onNavigate,
 }: {
   to: string
   icon: any
   label: string
+  badgeCount?: number
   collapsed?: boolean
   onNavigate?: () => void
 }) {
+  const hasBadge = typeof badgeCount === 'number' && badgeCount > 0
+  const badgeLabel = badgeCount && badgeCount > 99 ? '99+' : String(badgeCount ?? 0)
+
   return (
     <NavLink
       to={to}
@@ -44,6 +52,19 @@ function Item({
           />
           <Icon size={17} strokeWidth={1.9} />
           {!collapsed && <span className="truncate">{label}</span>}
+          {hasBadge && (
+            <span
+              className={cx(
+                'inline-flex min-w-6 items-center justify-center rounded-full border px-1.5 py-0.5 text-[10px] font-semibold leading-none',
+                isActive
+                  ? 'border-[color:color-mix(in_srgb,var(--accent)_28%,white)] bg-[color:color-mix(in_srgb,var(--accent)_12%,white)] text-[color:color-mix(in_srgb,var(--accent)_78%,var(--text))]'
+                  : 'border-[color:color-mix(in_srgb,var(--text)_14%,white)] bg-[color:color-mix(in_srgb,var(--surface)_94%,white)] text-[var(--text)]',
+                collapsed ? 'absolute right-2 top-2' : 'ml-auto',
+              )}
+            >
+              {badgeLabel}
+            </span>
+          )}
         </>
       )}
     </NavLink>
@@ -52,9 +73,28 @@ function Item({
 
 export default function Shell({ children }: PropsWithChildren) {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const { role, user, isStaff, logout, proAuthEnabled } = useAuth()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [logoutError, setLogoutError] = useState<string | null>(null)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement | null>(null)
   const blurActiveElement = () => (document.activeElement as HTMLElement)?.blur()
+  const shouldUseAuditUserIdFallback = Boolean(user?.userId) && proAuthEnabled !== true
+  const auditUnreadCountQuery = useQuery({
+    queryKey: ['audit', 'unread-count', user?.userId ?? 'unknown', shouldUseAuditUserIdFallback ? 'user-id' : 'session'],
+    queryFn: () =>
+      getAuditUnreadCount({
+        userId: user?.userId ?? undefined,
+        useUserIdFallback: shouldUseAuditUserIdFallback,
+      }),
+    enabled: Boolean(user?.userId),
+    staleTime: 30_000,
+    retry: 1,
+  })
+  const auditUnreadCount = auditUnreadCountQuery.data ?? 0
 
   useEffect(() => {
     try {
@@ -71,6 +111,7 @@ export default function Shell({ children }: PropsWithChildren) {
   useEffect(() => {
     blurActiveElement()
     setIsMobileOpen(false)
+    setIsUserMenuOpen(false)
   }, [pathname])
 
   useEffect(() => {
@@ -84,6 +125,18 @@ export default function Shell({ children }: PropsWithChildren) {
     window.addEventListener('keydown', onEsc)
     return () => window.removeEventListener('keydown', onEsc)
   }, [isMobileOpen])
+
+  useEffect(() => {
+    if (!isUserMenuOpen) return
+    const onPointerDown = (e: MouseEvent) => {
+      if (!userMenuRef.current) return
+      if (!userMenuRef.current.contains(e.target as Node)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    return () => document.removeEventListener('mousedown', onPointerDown)
+  }, [isUserMenuOpen])
 
   useEffect(() => {
     if (!isMobileOpen) return
@@ -102,6 +155,8 @@ export default function Shell({ children }: PropsWithChildren) {
         '/clients': 'Clientes',
         '/landings': 'Landings',
         '/submissions': 'Submissions',
+        '/auditoria': 'Auditoría',
+        '/settings': 'Ajustes',
       } as Record<string, string>
     )[pathname] ?? 'Dashboard'
 
@@ -113,10 +168,10 @@ export default function Shell({ children }: PropsWithChildren) {
         '/clients': 'Alta rápida de clientes para nuevas landings',
         '/landings': 'Creación de landings y URLs operativas',
         '/submissions': 'Consulta, detalle y reenvío de envíos',
+        '/auditoria': 'Eventos recientes y trazabilidad de cambios',
+        '/settings': 'Información de cuenta y sesión',
       } as Record<string, string>
     )[pathname] ?? 'Panel de administración'
-
-  const breadcrumbLabel = pathname.startsWith('/landings/') ? 'Landings' : routeTitle
 
   const NavContent = ({ collapsed = false, onNavigate }: { collapsed?: boolean; onNavigate?: () => void }) => (
     <>
@@ -135,26 +190,30 @@ export default function Shell({ children }: PropsWithChildren) {
             blurActiveElement()
             setIsCollapsed((s) => !s)
           }}
-          className="hidden h-9 w-9 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:border-[color:color-mix(in_srgb,var(--accent)_26%,white)] hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)] md:inline-flex"
+          className="hidden h-10 w-10 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:border-[color:color-mix(in_srgb,var(--accent)_26%,white)] hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)] md:inline-flex"
         >
           {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
         </button>
       </div>
       <nav className="flex flex-col gap-1.5">
         <Item to="/" icon={LayoutDashboard} label="Dashboard" collapsed={collapsed} onNavigate={onNavigate} />
-        <Item to="/clients" icon={Users} label="Clientes" collapsed={collapsed} onNavigate={onNavigate} />
+        {!isStaff && <Item to="/clients" icon={Users} label="Clientes" collapsed={collapsed} onNavigate={onNavigate} />}
         <Item to="/landings" icon={PanelsTopLeft} label="Landings" collapsed={collapsed} onNavigate={onNavigate} />
         <Item to="/submissions" icon={Inbox} label="Submissions" collapsed={collapsed} onNavigate={onNavigate} />
+        <Item
+          to="/auditoria"
+          icon={History}
+          label="Auditoría"
+          badgeCount={auditUnreadCount}
+          collapsed={collapsed}
+          onNavigate={onNavigate}
+        />
       </nav>
-      <div className={cx('mt-5 rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] p-3 text-xs', collapsed && 'hidden')}>
-        <div className="font-semibold text-[var(--text)]">Auth</div>
-        <div className="mt-1 text-[var(--muted)]">`x-admin-key` desde `.env` (frontend)</div>
-      </div>
     </>
   )
 
   return (
-    <div className="h-screen overflow-hidden bg-[var(--bg)]">
+    <div className="h-dvh min-h-dvh overflow-hidden bg-[var(--bg)]">
       <div className="flex h-full min-w-0">
         <aside
           className={cx(
@@ -170,7 +229,6 @@ export default function Shell({ children }: PropsWithChildren) {
             'fixed inset-0 z-40 md:hidden',
             isMobileOpen ? 'pointer-events-auto' : 'pointer-events-none',
           )}
-          aria-hidden={!isMobileOpen}
         >
           <div
             className={cx(
@@ -200,7 +258,7 @@ export default function Shell({ children }: PropsWithChildren) {
                   blurActiveElement()
                   setIsMobileOpen(false)
                 }}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)]"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)]"
               >
                 <X size={16} />
               </button>
@@ -215,9 +273,9 @@ export default function Shell({ children }: PropsWithChildren) {
         </div>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-          <header className="border-b border-[color:color-mix(in_srgb,var(--accent)_18%,white)] bg-[color:color-mix(in_srgb,var(--surface)_92%,white)] px-5 py-4 shadow-[inset_0_-1px_0_0_color-mix(in_srgb,var(--accent)_14%,white)]">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex min-w-0 items-start gap-3">
+          <header className="border-b border-[color:color-mix(in_srgb,var(--accent)_18%,white)] bg-[color:color-mix(in_srgb,var(--surface)_92%,white)] px-3 py-2 sm:px-4 sm:py-3 lg:px-5 lg:py-4 shadow-[inset_0_-1px_0_0_color-mix(in_srgb,var(--accent)_14%,white)]">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <div className="flex shrink-0 items-center">
                 <button
                   type="button"
                   aria-label="Open navigation"
@@ -225,29 +283,82 @@ export default function Shell({ children }: PropsWithChildren) {
                     blurActiveElement()
                     setIsMobileOpen(true)
                   }}
-                  className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:border-[color:color-mix(in_srgb,var(--accent)_30%,white)] hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)] md:hidden"
+                  className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[color:color-mix(in_srgb,var(--text)_13%,white)] text-[var(--muted)] transition-colors duration-200 ease-out hover:border-[color:color-mix(in_srgb,var(--accent)_30%,white)] hover:text-[var(--text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_50%,white)] md:hidden"
                 >
                   <Menu size={17} />
                 </button>
-                <div className="min-w-0">
-                  <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
-                    <span>Admin</span>
-                    <span className="opacity-60">/</span>
-                    <span className="text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))]">{breadcrumbLabel}</span>
-                  </div>
-                  <h1 className="truncate text-xl font-semibold tracking-tight text-[var(--text)]">{routeTitle}</h1>
-                  <p className="mt-1 truncate text-sm text-[var(--muted)]">{routeSubtitle}</p>
-                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="rounded-full border border-[color:color-mix(in_srgb,var(--accent)_35%,white)] bg-[color:color-mix(in_srgb,var(--accent)_14%,white)] px-3 py-1 text-xs font-semibold text-[color:color-mix(in_srgb,var(--accent)_80%,var(--text))]">
-                  {routeTitle}
+              <div className="min-w-0 flex-1">
+                <div className="inline-flex min-w-0 max-w-full items-center rounded-full border border-[color:color-mix(in_srgb,var(--accent)_35%,white)] bg-[color:color-mix(in_srgb,var(--accent)_14%,white)] px-3 py-1.5 text-xs font-semibold text-[color:color-mix(in_srgb,var(--accent)_80%,var(--text))] sm:px-3.5">
+                  <span className="min-w-0 max-w-full truncate overflow-hidden text-ellipsis whitespace-nowrap">{routeTitle}</span>
+                </div>
+                <p className="mt-1 hidden truncate text-sm text-[var(--muted)] md:block">{routeSubtitle}</p>
+              </div>
+              <div className="ml-auto flex shrink-0 items-center gap-2">
+                {role && (
+                  <div className="hidden rounded-full border border-[color:color-mix(in_srgb,var(--text)_16%,white)] bg-[color:color-mix(in_srgb,var(--surface)_92%,white)] px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--muted)] sm:inline-flex">
+                    {role}
+                  </div>
+                )}
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded={isUserMenuOpen}
+                    onClick={() => {
+                      setLogoutError(null)
+                      setIsUserMenuOpen((s) => !s)
+                    }}
+                    className="inline-flex h-11 max-w-[10rem] items-center rounded-full border border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] px-3 text-xs font-semibold text-[var(--muted)] transition-colors duration-200 ease-out hover:border-[color:color-mix(in_srgb,var(--accent)_26%,white)] hover:text-[var(--text)] sm:max-w-[12rem]"
+                  >
+                    <span className="min-w-0 max-w-full truncate overflow-hidden text-ellipsis whitespace-nowrap">{user?.email || 'Usuario'}</span>
+                    {role ? <span className="ml-1 hidden lg:inline">({role})</span> : null}
+                  </button>
+                  {isUserMenuOpen && (
+                    <div
+                      role="menu"
+                      className="absolute right-0 top-[calc(100%+8px)] z-30 min-w-[180px] rounded-xl border border-[color:color-mix(in_srgb,var(--text)_14%,white)] bg-[var(--surface)] p-1.5 shadow-[0_10px_26px_rgba(15,23,42,0.14)]"
+                    >
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setIsUserMenuOpen(false)
+                          navigate('/settings')
+                        }}
+                        className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--accent)_10%,white)]"
+                      >
+                        Ajustes
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        disabled={isLoggingOut}
+                        onClick={async () => {
+                          setIsLoggingOut(true)
+                          setLogoutError(null)
+                          const result = await logout()
+                          setIsLoggingOut(false)
+                          if (!result.ok) {
+                            setLogoutError(result.error || 'No se pudo cerrar sesión.')
+                            return
+                          }
+                          setIsUserMenuOpen(false)
+                          navigate('/login')
+                        }}
+                        className="block w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--accent)_10%,white)] disabled:opacity-60"
+                      >
+                        {isLoggingOut ? 'Cerrando sesión...' : 'Cerrar sesión'}
+                      </button>
+                      {logoutError && <p className="px-3 pb-1 pt-2 text-xs text-[color:color-mix(in_srgb,var(--danger)_72%,black)]">{logoutError}</p>}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </header>
 
-          <main className="min-h-0 flex-1 overflow-auto p-5 lg:p-7">{children}</main>
+          <main className="min-h-0 flex-1 overflow-auto p-3 sm:p-4 lg:p-7">{children}</main>
         </div>
       </div>
     </div>

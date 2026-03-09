@@ -266,7 +266,6 @@ export default function Submissions() {
           </div>
         </div>
 
-        <div className="text-xs text-[var(--muted)]">Backend: GET /admin/submissions?landingId=&take=</div>
       </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
