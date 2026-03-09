@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { AuditEvent, listAuditEvents, markAuditEventsAsRead } from '../lib/api'
-import { useAuth } from '../auth/useAuth'
 import { getLanguageDateLocale } from '../i18n'
 import { Card } from '../ui/Card'
 import Button from '../ui/Button'
@@ -194,7 +193,6 @@ function getStatusLabel(showingHistory: boolean, t: Translate) {
 
 export default function Audits() {
   const { t, i18n } = useTranslation(['audits', 'common'])
-  const { user, proAuthEnabled } = useAuth()
   const queryClient = useQueryClient()
   const requestIdRef = useRef(0)
   const markedBatchRef = useRef<string | null>(null)
@@ -206,8 +204,6 @@ export default function Audits() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
   const [hasMarkedInitialBatch, setHasMarkedInitialBatch] = useState(false)
   const [showingHistory, setShowingHistory] = useState(false)
-
-  const shouldUseUserIdFallback = Boolean(user?.userId) && proAuthEnabled !== true
 
   const refreshUnreadBadge = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['audit', 'unread-count'] })
@@ -224,8 +220,6 @@ export default function Audits() {
       const response = await listAuditEvents({
         take: INITIAL_TAKE,
         unreadOnly: true,
-        userId: user?.userId ?? undefined,
-        useUserIdFallback: shouldUseUserIdFallback,
       })
 
       if (requestId !== requestIdRef.current) return
@@ -253,10 +247,7 @@ export default function Audits() {
       markedBatchRef.current = batchKey
 
       try {
-        await markAuditEventsAsRead(eventIds, {
-          userId: user?.userId ?? undefined,
-          useUserIdFallback: shouldUseUserIdFallback,
-        })
+        await markAuditEventsAsRead(eventIds)
       } catch (markError: any) {
         if (requestId !== requestIdRef.current) return
         setToast(markError?.message || t('audits:states.markReadError'))
@@ -274,7 +265,7 @@ export default function Audits() {
         setLoading(false)
       }
     }
-  }, [refreshUnreadBadge, shouldUseUserIdFallback, t, user?.userId])
+  }, [refreshUnreadBadge, t])
 
   const loadRecentHistory = useCallback(async () => {
     setShowingHistory(true)
@@ -284,8 +275,6 @@ export default function Audits() {
     try {
       const response = await listAuditEvents({
         take: INITIAL_TAKE,
-        userId: user?.userId ?? undefined,
-        useUserIdFallback: shouldUseUserIdFallback,
       })
       setEvents(response.events || [])
     } catch (historyError: any) {
@@ -293,7 +282,7 @@ export default function Audits() {
     } finally {
       setIsLoadingHistory(false)
     }
-  }, [shouldUseUserIdFallback, t, user?.userId])
+  }, [t])
 
   const restoreUnreadView = useCallback(() => {
     setError(null)

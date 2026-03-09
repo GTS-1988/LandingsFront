@@ -102,7 +102,7 @@ export default function Shell({ children }: PropsWithChildren) {
   const { t } = useTranslation('common')
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { role, user, isStaff, logout, proAuthEnabled } = useAuth()
+  const { role, user, isStaff, logout } = useAuth()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
@@ -110,14 +110,9 @@ export default function Shell({ children }: PropsWithChildren) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const userMenuRef = useRef<HTMLDivElement | null>(null)
   const blurActiveElement = () => (document.activeElement as HTMLElement)?.blur()
-  const shouldUseAuditUserIdFallback = Boolean(user?.userId) && proAuthEnabled !== true
   const auditUnreadCountQuery = useQuery({
-    queryKey: ['audit', 'unread-count', user?.userId ?? 'unknown', shouldUseAuditUserIdFallback ? 'user-id' : 'session'],
-    queryFn: () =>
-      getAuditUnreadCount({
-        userId: user?.userId ?? undefined,
-        useUserIdFallback: shouldUseAuditUserIdFallback,
-      }),
+    queryKey: ['audit', 'unread-count', user?.userId ?? 'unknown'],
+    queryFn: () => getAuditUnreadCount(),
     enabled: Boolean(user?.userId),
     staleTime: 30_000,
     retry: 1,

@@ -140,15 +140,6 @@ export const api = axios.create({
   withCredentials: true,
 })
 
-api.interceptors.request.use((config) => {
-  // Admin endpoints require x-admin-key
-  if (config.url?.startsWith('/admin')) {
-    config.headers = config.headers || {}
-    ;(config.headers as any)['x-admin-key'] = env.adminApiKey
-  }
-  return config
-})
-
 export type Client = { id: string; name: string; createdAt: string; updatedAt?: string }
 export type Landing = {
   id: string
@@ -200,8 +191,6 @@ export type AuditEvent = {
 }
 
 type AuditRequestOptions = {
-  userId?: string
-  useUserIdFallback?: boolean
   signal?: AbortSignal
 }
 
@@ -212,14 +201,6 @@ type ListAuditEventsParams = AuditRequestOptions & {
   clientId?: string
   landingId?: string
   unreadOnly?: boolean
-}
-
-function getAuditRequestHeaders(options: AuditRequestOptions) {
-  const headers: Record<string, string> = {}
-  if (options.useUserIdFallback && options.userId) {
-    headers['x-user-id'] = options.userId
-  }
-  return headers
 }
 
 export async function health() {
@@ -240,11 +221,7 @@ export async function listClients(params: { q?: string; take?: number; cursor?: 
 
   const base = api.defaults.baseURL || ''
   const path = /\/v1\/?$/.test(base) ? '/admin/clients' : '/v1/admin/clients'
-  const { data } = await api.get(`${path}?${qs.toString()}`, {
-    headers: {
-      'x-admin-key': env.adminApiKey,
-    },
-  })
+  const { data } = await api.get(`${path}?${qs.toString()}`)
   return data as { ok: true; clients: Client[]; nextCursor: string | null }
 }
 
@@ -262,11 +239,7 @@ export async function listLandings(params: { clientId: string; q?: string; take?
 
   const base = api.defaults.baseURL || ''
   const path = /\/v1\/?$/.test(base) ? '/admin/landings' : '/v1/admin/landings'
-  const { data } = await api.get(`${path}?${qs.toString()}`, {
-    headers: {
-      'x-admin-key': env.adminApiKey,
-    },
-  })
+  const { data } = await api.get(`${path}?${qs.toString()}`)
   return data as { ok: true; landings: Array<{ id: string; name: string; clientId: string; createdAt: string }>; nextCursor: string | null }
 }
 
@@ -317,10 +290,7 @@ export async function listAuditEvents(params: ListAuditEventsParams = {}) {
   if (params.landingId) qs.set('landingId', params.landingId)
   if (params.unreadOnly) qs.set('unreadOnly', 'true')
 
-  const { data } = await api.get(`/admin/events?${qs.toString()}`, {
-    headers: getAuditRequestHeaders(params),
-    signal: params.signal,
-  })
+  const { data } = await api.get(`/admin/events?${qs.toString()}`, { signal: params.signal })
 
   return {
     ok: Boolean(data?.ok ?? true),
@@ -337,10 +307,7 @@ export async function markAuditEventsAsRead(eventIds: string[], options: AuditRe
   const { data } = await api.post(
     '/admin/events/read',
     { eventIds },
-    {
-      headers: getAuditRequestHeaders(options),
-      signal: options.signal,
-    },
+    { signal: options.signal },
   )
 
   return {
@@ -351,10 +318,7 @@ export async function markAuditEventsAsRead(eventIds: string[], options: AuditRe
 
 export async function getAuditUnreadCount(options: AuditRequestOptions = {}) {
   try {
-    const { data } = await api.get('/admin/events/unread-count', {
-      headers: getAuditRequestHeaders(options),
-      signal: options.signal,
-    })
+    const { data } = await api.get('/admin/events/unread-count', { signal: options.signal })
 
     const rawCount = data?.count ?? data?.unreadCount ?? data?.unread_count ?? 0
     const count = Number(rawCount)
@@ -363,8 +327,6 @@ export async function getAuditUnreadCount(options: AuditRequestOptions = {}) {
     const fallback = await listAuditEvents({
       take: 20,
       unreadOnly: true,
-      userId: options.userId,
-      useUserIdFallback: options.useUserIdFallback,
       signal: options.signal,
     })
     return fallback.events.length
