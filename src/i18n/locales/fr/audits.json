@@ -1,11 +1,13 @@
 {
   "page": {
     "title": "Audit",
-    "subtitle": "Les événements non lus sont chargés en premier et marqués comme lus à l'entrée dans cette section."
+    "subtitle": "Les événements non lus sont chargés en premier et marqués comme lus à l'entrée dans cette section.",
+    "supportSubtitle": "Les événements non lus sont chargés en premier. Pour le support, ils restent visibles sans être marqués comme lus."
   },
   "actions": {
     "viewRecentHistory": "Voir l'historique récent",
-    "backToUnread": "Retour aux non lus"
+    "backToUnread": "Retour aux non lus",
+    "markLoadedAsRead": "Marquer le lot chargé comme lu"
   },
   "status": {
     "showingHistory": "Affichage de l'historique récent",
@@ -14,7 +16,8 @@
     "updatingTable": "Mise à jour du tableau...",
     "showingRecentCount": "Affichage des 50 événements les plus récents disponibles.",
     "initialBatchProcessed": "Le lot initial chargé a déjà été traité pour synchroniser son état de lecture.",
-    "recentEventsLoaded": "Événements récents chargés depuis l'audit."
+    "recentEventsLoaded": "Événements récents chargés depuis l'audit.",
+    "supportUnreadVisible": "Les événements en attente restent visibles en lecture seule."
   },
   "states": {
     "loading": "Chargement des événements...",

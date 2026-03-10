@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { useReadOnlySupportText, useRoleAccess } from '../auth/permissions'
 import { AuditEvent, listAuditEvents, markAuditEventsAsRead } from '../lib/api'
 import { getLanguageDateLocale } from '../i18n'
 import { Card } from '../ui/Card'
@@ -193,6 +194,8 @@ function getStatusLabel(showingHistory: boolean, t: Translate) {
 
 export default function Audits() {
   const { t, i18n } = useTranslation(['audits', 'common'])
+  const { isSupport } = useRoleAccess()
+  const readOnlyText = useReadOnlySupportText()
   const queryClient = useQueryClient()
   const requestIdRef = useRef(0)
   const markedBatchRef = useRef<string | null>(null)
@@ -238,6 +241,12 @@ export default function Audits() {
       const eventIds = nextEvents.map(({ id }) => id).filter(Boolean)
       const batchKey = eventIds.join(',')
 
+      if (isSupport) {
+        setHasMarkedInitialBatch(false)
+        void refreshUnreadBadge()
+        return
+      }
+
       if (!eventIds.length || markedBatchRef.current === batchKey) {
         setHasMarkedInitialBatch(true)
         void refreshUnreadBadge()
@@ -265,7 +274,7 @@ export default function Audits() {
         setLoading(false)
       }
     }
-  }, [refreshUnreadBadge, t])
+  }, [isSupport, refreshUnreadBadge, t])
 
   const loadRecentHistory = useCallback(async () => {
     setShowingHistory(true)
@@ -312,10 +321,20 @@ export default function Audits() {
           <div className="min-w-0 space-y-1">
             <div className="text-base font-semibold text-[var(--text)]">{t('audits:page.title')}</div>
             <p className="text-sm text-[var(--muted)]">
-              {t('audits:page.subtitle')}
+              {isSupport ? t('audits:page.supportSubtitle') : t('audits:page.subtitle')}
             </p>
           </div>
           <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:self-start">
+            {isSupport && !showingHistory ? (
+              <Button
+                type="button"
+                disabled
+                title={readOnlyText.actionTitle}
+                className={SECONDARY_BUTTON_CLASS}
+              >
+                {t('audits:actions.markLoadedAsRead')}
+              </Button>
+            ) : null}
             {showingHistory ? (
               <Button
                 type="button"
@@ -362,7 +381,9 @@ export default function Audits() {
               <div className="text-xs text-[var(--muted)]">
                 {showingHistory
                   ? t('audits:status.showingRecentCount')
-                  : hasMarkedInitialBatch
+                  : isSupport
+                    ? t('audits:status.supportUnreadVisible')
+                    : hasMarkedInitialBatch
                     ? t('audits:status.initialBatchProcessed')
                     : t('audits:status.recentEventsLoaded')}
               </div>

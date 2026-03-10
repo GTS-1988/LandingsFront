@@ -59,5 +59,17 @@
     "logout": "Sair",
     "loggingOut": "Saindo...",
     "logoutError": "Não foi possível encerrar a sessão."
+  },
+  "permissions": {
+    "readOnlyAction": "Acesso somente leitura",
+    "readOnlyHint": "Acesso somente leitura: esta ação continua visível, mas não está disponível para o seu perfil."
+  },
+  "selectors": {
+    "searchPlaceholder": "Buscar...",
+    "loading": "Carregando opções...",
+    "empty": "Nenhuma opção disponível.",
+    "noResults": "Nenhum resultado encontrado.",
+    "clear": "Limpar seleção",
+    "selected": "Atual"
   }
 }

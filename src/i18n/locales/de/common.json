@@ -59,5 +59,17 @@
     "logout": "Abmelden",
     "loggingOut": "Abmeldung...",
     "logoutError": "Die Sitzung konnte nicht beendet werden."
+  },
+  "permissions": {
+    "readOnlyAction": "Nur-Lese-Zugriff",
+    "readOnlyHint": "Nur-Lese-Zugriff: Diese Aktion bleibt sichtbar, ist aber für Ihre Rolle nicht verfügbar."
+  },
+  "selectors": {
+    "searchPlaceholder": "Suchen...",
+    "loading": "Optionen werden geladen...",
+    "empty": "Keine Optionen verfügbar.",
+    "noResults": "Keine Treffer gefunden.",
+    "clear": "Auswahl löschen",
+    "selected": "Aktuell"
   }
 }

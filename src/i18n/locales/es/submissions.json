@@ -6,22 +6,45 @@
     "landingLabel": "Landing",
     "landingPlaceholder": "Elija una landing…",
     "landingAriaLabel": "Seleccione una landing",
-    "pageSizeLabel": "Tamaño de página"
+    "formLabel": "Formulario",
+    "formPlaceholder": "Elija un formulario…",
+    "formAriaLabel": "Seleccione un formulario"
+  },
+  "search": {
+    "label": "Buscar submissions",
+    "placeholder": "Buscar por nombre, email, teléfono o mensaje…",
+    "ariaLabel": "Buscar submissions"
   },
   "list": {
     "title": "Listado",
-    "count": "{{count}} envíos",
+    "count": "{{count}} submissions",
+    "filteredCount": "{{visible}} de {{count}} submissions",
+    "loadedCount": "{{count}} submissions cargadas",
     "noSelectionCount": "-",
     "formReference": "formId: {{id}}",
-    "unnamed": "(sin nombre)"
+    "unnamed": "(sin nombre)",
+    "openDetail": "Abrir detalle de submission",
+    "deliveryDelivered": "Entregada",
+    "deliveryPending": "Pendiente",
+    "noResults": "No hay coincidencias con los filtros actuales.",
+    "resultsRange": "Mostrando {{from}}-{{to}} de {{total}}",
+    "headers": {
+      "contact": "Contacto",
+      "form": "Formulario",
+      "message": "Mensaje",
+      "status": "Estado"
+    }
   },
   "detail": {
     "title": "Detalle",
+    "modalTitle": "Detalle de submission",
     "empty": "Selecciona una submission del listado.",
     "idsTitle": "IDs",
     "submissionId": "submissionId",
     "landingId": "landingId",
     "formId": "formId",
+    "createdAtLabel": "Recibida",
+    "deliveredAtLabel": "Entregada",
     "fieldsTitle": "Campos",
     "nameLabel": "Nombre",
     "emailLabel": "Email",
@@ -32,16 +55,22 @@
   },
   "actions": {
     "resend": "Reenviar (nueva submission)",
-    "resending": "Reenviando…"
+    "resending": "Reenviando…",
+    "previousPage": "Anterior",
+    "nextPage": "Siguiente"
   },
   "states": {
     "selectLanding": "Seleccione una landing para ver submissions",
     "loading": "Cargando submissions...",
-    "loadingMore": "Cargando más submissions...",
     "empty": "No hay submissions",
     "loadError": "Error cargando submissions",
     "loadLandingsError": "Error cargando landings",
-    "endOfResults": "No hay más resultados"
+    "loadFormsError": "Error cargando formularios"
+  },
+  "pagination": {
+    "pageLabelKnown": "Página {{page}} de {{total}}",
+    "pageLabelLoaded": "Página {{page}} de {{total}} cargadas",
+    "loadedHint": "La API no informa el total; se muestran hasta {{count}} submissions cargadas."
   },
   "toasts": {
     "resendSuccess": "Reenvío (nueva submission) enviado",

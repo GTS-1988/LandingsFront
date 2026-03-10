@@ -1,16 +1,18 @@
-import { ChangeEventHandler, ReactNode } from 'react'
-import SelectField from './SelectField'
+import { ReactNode } from 'react'
+import SearchableSelectField from './SearchableSelectField'
 
 type EntityOption = {
   id: string
   name: string
+  description?: string
 }
 
 type EntitySelectFieldProps = {
   label: string
   value: string
-  onChange: ChangeEventHandler<HTMLSelectElement>
+  onChange: (value: string) => void
   disabled?: boolean
+  loading?: boolean
   id: string
   name: string
   placeholder: string
@@ -24,6 +26,7 @@ export default function EntitySelectField({
   value,
   onChange,
   disabled,
+  loading,
   id,
   name,
   placeholder,
@@ -32,22 +35,23 @@ export default function EntitySelectField({
   ariaLabel,
 }: EntitySelectFieldProps) {
   return (
-    <SelectField
+    <SearchableSelectField
       label={label}
       value={value}
       onChange={onChange}
       disabled={disabled}
+      loading={loading}
       id={id}
       name={name}
+      placeholder={placeholder}
+      options={options.map((option) => ({
+        value: option.id,
+        label: option.name,
+        description: option.description,
+        searchText: `${option.name} ${option.id}`,
+      }))}
       helperText={helperText}
-      aria-label={ariaLabel}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option.id} value={option.id}>
-          {option.name}
-        </option>
-      ))}
-    </SelectField>
+      ariaLabel={ariaLabel}
+    />
   )
 }

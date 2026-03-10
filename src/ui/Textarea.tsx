@@ -12,7 +12,7 @@ export default function Textarea({ className, ...props }: TextareaHTMLAttributes
       id={fieldId}
       name={fieldName}
       className={cx(
-        'w-full rounded-xl border border-[color:color-mix(in_srgb,var(--text)_14%,white)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)] placeholder:text-[color:color-mix(in_srgb,var(--text)_45%,white)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)]',
+        'w-full rounded-xl border border-[color:color-mix(in_srgb,var(--text)_14%,white)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--text)] placeholder:text-[color:color-mix(in_srgb,var(--text)_45%,white)] focus:outline-none focus:ring-2 focus:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)] disabled:cursor-not-allowed disabled:bg-[color:color-mix(in_srgb,var(--bg)_72%,white)] disabled:text-[var(--muted)]',
         className,
       )}
     />

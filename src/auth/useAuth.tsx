@@ -2,13 +2,13 @@ import { createContext, PropsWithChildren, useCallback, useContext, useEffect, u
 import { ApiError, abortPendingApiFetchRequests, apiFetch, getAuthLoginUrl } from '../lib/api'
 
 export type AuthStatus = 'loading' | 'authed' | 'guest' | 'forbidden'
-export type AuthRole = 'admin' | 'staff' | null
+export type AuthRole = 'admin' | 'staff' | 'support' | null
 export type AuthUser = { userId: string; email: string }
 
 type MeResponse = {
   ok: boolean
   user?: AuthUser
-  role?: 'admin' | 'staff' | null
+  role?: 'admin' | 'staff' | 'support' | null
   proAuthEnabled?: boolean
 }
 
@@ -24,6 +24,7 @@ type AuthContextValue = {
   authLoginUrl: string
   isAdmin: boolean
   isStaff: boolean
+  isSupport: boolean
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -117,6 +118,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       authLoginUrl,
       isAdmin: role === 'admin',
       isStaff: role === 'staff',
+      isSupport: role === 'support',
     }),
     [status, user, role, proAuthEnabled, error, refresh, setGuest, logout, authLoginUrl],
   )

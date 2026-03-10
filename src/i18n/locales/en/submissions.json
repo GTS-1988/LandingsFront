@@ -6,22 +6,45 @@
     "landingLabel": "Landing",
     "landingPlaceholder": "Choose a landing…",
     "landingAriaLabel": "Select landing",
-    "pageSizeLabel": "Page size"
+    "formLabel": "Form",
+    "formPlaceholder": "Choose a form…",
+    "formAriaLabel": "Select form"
+  },
+  "search": {
+    "label": "Search submissions",
+    "placeholder": "Search by name, email, phone or message…",
+    "ariaLabel": "Search submissions"
   },
   "list": {
     "title": "List",
-    "count": "{{count}} items",
+    "count": "{{count}} submissions",
+    "filteredCount": "{{visible}} of {{count}} submissions",
+    "loadedCount": "{{count}} submissions loaded",
     "noSelectionCount": "-",
     "formReference": "formId: {{id}}",
-    "unnamed": "(no name)"
+    "unnamed": "(no name)",
+    "openDetail": "Open submission details",
+    "deliveryDelivered": "Delivered",
+    "deliveryPending": "Pending",
+    "noResults": "No submissions match the current filters.",
+    "resultsRange": "Showing {{from}}-{{to}} of {{total}}",
+    "headers": {
+      "contact": "Contact",
+      "form": "Form",
+      "message": "Message",
+      "status": "Status"
+    }
   },
   "detail": {
     "title": "Detail",
+    "modalTitle": "Submission details",
     "empty": "Select a submission from the list.",
     "idsTitle": "IDs",
     "submissionId": "submissionId",
     "landingId": "landingId",
     "formId": "formId",
+    "createdAtLabel": "Received",
+    "deliveredAtLabel": "Delivered",
     "fieldsTitle": "Fields",
     "nameLabel": "Name",
     "emailLabel": "Email",
@@ -32,16 +55,22 @@
   },
   "actions": {
     "resend": "Resend (new submission)",
-    "resending": "Resending…"
+    "resending": "Resending…",
+    "previousPage": "Previous",
+    "nextPage": "Next"
   },
   "states": {
     "selectLanding": "Select a landing to view submissions",
     "loading": "Loading submissions...",
-    "loadingMore": "Loading more submissions...",
     "empty": "No submissions",
     "loadError": "Error loading submissions",
     "loadLandingsError": "Error loading landings",
-    "endOfResults": "No more results"
+    "loadFormsError": "Error loading forms"
+  },
+  "pagination": {
+    "pageLabelKnown": "Page {{page}} of {{total}}",
+    "pageLabelLoaded": "Page {{page}} of {{total}} loaded",
+    "loadedHint": "The API does not expose the total. Showing up to {{count}} loaded submissions."
   },
   "toasts": {
     "resendSuccess": "Resend (new submission) sent",

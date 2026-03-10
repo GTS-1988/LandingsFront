@@ -59,5 +59,17 @@
     "logout": "Log out",
     "loggingOut": "Logging out...",
     "logoutError": "Could not log out."
+  },
+  "permissions": {
+    "readOnlyAction": "Read-only access",
+    "readOnlyHint": "Read-only access: this action stays visible but is not available for your role."
+  },
+  "selectors": {
+    "searchPlaceholder": "Search...",
+    "loading": "Loading options...",
+    "empty": "No options available.",
+    "noResults": "No matching results.",
+    "clear": "Clear selection",
+    "selected": "Current"
   }
 }

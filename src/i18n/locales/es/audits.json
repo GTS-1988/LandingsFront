@@ -1,11 +1,13 @@
 {
   "page": {
     "title": "Auditoría",
-    "subtitle": "Se cargan primero los eventos no leídos y se marcan como leídos al entrar en esta sección."
+    "subtitle": "Se cargan primero los eventos no leídos y se marcan como leídos al entrar en esta sección.",
+    "supportSubtitle": "Se cargan primero los eventos no leídos. En soporte se mantienen visibles sin marcarse como leídos."
   },
   "actions": {
     "viewRecentHistory": "Ver historial reciente",
-    "backToUnread": "Volver a no leídas"
+    "backToUnread": "Volver a no leídas",
+    "markLoadedAsRead": "Marcar cargadas como leídas"
   },
   "status": {
     "showingHistory": "Mostrando historial reciente",
@@ -14,7 +16,8 @@
     "updatingTable": "Actualizando tabla...",
     "showingRecentCount": "Mostrando los 50 eventos más recientes disponibles.",
     "initialBatchProcessed": "La tanda inicial cargada ya fue procesada para sincronizar su estado de lectura.",
-    "recentEventsLoaded": "Eventos recientes cargados desde auditoría."
+    "recentEventsLoaded": "Eventos recientes cargados desde auditoría.",
+    "supportUnreadVisible": "Los eventos pendientes siguen visibles en modo solo lectura."
   },
   "states": {
     "loading": "Cargando eventos...",

@@ -1,16 +1,27 @@
+import { Radio, ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { useReadOnlySupportText, useRoleAccess } from '../auth/permissions'
 import { buildV1Url, createForm, getLanding, makePrimaryForm, submitForm, updateForm } from '../lib/api'
 import { Card } from '../ui/Card'
 import Button from '../ui/Button'
+import EntitySelectField from '../ui/EntitySelectField'
 import Input from '../ui/Input'
 import Textarea from '../ui/Textarea'
 import Toast from '../ui/Toast'
 
+const primaryActionLinkClass =
+  'inline-flex items-center justify-center rounded-xl border border-[color:color-mix(in_srgb,var(--accent)_38%,white)] bg-[var(--accent)] px-3.5 py-2 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(var(--shadow-color),0.08)] transition duration-200 ease-out hover:bg-[color:color-mix(in_srgb,var(--accent)_88%,black)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_42%,white)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]'
+
+const copyActionClass =
+  'border-[color:color-mix(in_srgb,var(--accent)_24%,white)] !bg-[color:color-mix(in_srgb,var(--accent)_18%,white)] !text-[color:color-mix(in_srgb,var(--accent)_88%,black)] hover:!bg-[color:color-mix(in_srgb,var(--accent)_26%,white)] hover:!text-[color:color-mix(in_srgb,var(--accent)_92%,black)]'
+
 export default function LandingDetail() {
   const { t } = useTranslation(['landings', 'common'])
+  const { isSupport } = useRoleAccess()
+  const readOnlyText = useReadOnlySupportText()
   const { landingId } = useParams()
   const [toast, setToast] = useState<string | null>(null)
 
@@ -111,6 +122,7 @@ export default function LandingDetail() {
   const primaryFormId = landing.primaryFormId || forms[0]?.id || null
   const primaryForm = landing.primaryForm || forms.find((f) => f.id === primaryFormId) || null
   const telegramConnectUrl = landing.telegramConnectUrl || ''
+  const isTelegramConnected = Boolean(landing.destination)
 
   const buildSubmitEndpoint = (formId: string) => {
     return buildV1Url(`/forms/${landing.id}/${formId}/submit`)
@@ -127,65 +139,93 @@ export default function LandingDetail() {
         </div>
       </div>
 
-      <Card className="space-y-3">
-        <div className="text-sm font-semibold text-[var(--text)]">{t('landings:detail.telegramStatusTitle')}</div>
-        <div className="text-sm text-[var(--text)]">
-          {t('landings:labels.destination')}: {landing.destination ? t('landings:status.connected') : t('landings:status.disconnected')}
-        </div>
-        {!landing.destination && (
-          <div className="text-xs text-[var(--muted)]">
-            {t('landings:detail.telegramHelper')}
-          </div>
-        )}
-        <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-          <div className="text-xs text-[var(--muted)]">{t('landings:labels.telegramConnectUrl')}</div>
-          <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{telegramConnectUrl || '-'}</div>
-          <div className="mt-2 flex gap-2">
-            {telegramConnectUrl && (
-              <Button
-                className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
-                onClick={() => copy(telegramConnectUrl)}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="flex h-full min-w-0 flex-col space-y-4">
+          <div className="text-sm font-semibold text-[var(--text)]">{t('landings:detail.telegramStatusTitle')}</div>
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-soft)] p-4">
+            <div className="flex items-center gap-3">
+              <div
+                className={[
+                  'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border',
+                  isTelegramConnected
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                    : 'border-rose-200 bg-rose-50 text-rose-700',
+                ].join(' ')}
               >
-                {t('landings:actions.copy')}
-              </Button>
-            )}
-            {telegramConnectUrl && (
-              <a
-                className="text-sm font-medium text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))] underline"
-                href={telegramConnectUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {t('landings:actions.open')}
-              </a>
-            )}
+                {isTelegramConnected ? <Radio className="h-5 w-5" /> : <ShieldAlert className="h-5 w-5" />}
+              </div>
+              <div className="min-w-0">
+                <div className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                  {t('landings:labels.destination')}
+                </div>
+                <div className="mt-1 flex items-center gap-2 text-sm font-semibold text-[var(--text)]">
+                  <span
+                    className={[
+                      'h-2.5 w-2.5 rounded-full',
+                      isTelegramConnected ? 'bg-emerald-500' : 'bg-rose-500',
+                    ].join(' ')}
+                    aria-hidden="true"
+                  />
+                  {isTelegramConnected ? t('landings:status.connected') : t('landings:status.disconnected')}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </Card>
+          {!isTelegramConnected && (
+            <div className="text-xs text-[var(--muted)]">
+              {t('landings:detail.telegramHelper')}
+            </div>
+          )}
+          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+            <div className="text-xs text-[var(--muted)]">{t('landings:labels.telegramConnectUrl')}</div>
+            <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{telegramConnectUrl || '-'}</div>
+            <div className="mt-2 flex gap-2">
+              {telegramConnectUrl && (
+                <Button
+                  className={copyActionClass}
+                  onClick={() => copy(telegramConnectUrl)}
+                >
+                  {t('landings:actions.copy')}
+                </Button>
+              )}
+              {telegramConnectUrl && (
+                <a
+                  className={primaryActionLinkClass}
+                  href={telegramConnectUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {t('landings:actions.open')}
+                </a>
+              )}
+            </div>
+          </div>
+        </Card>
 
-      <Card className="space-y-3">
-        <div className="text-sm font-semibold text-[var(--text)]">{t('landings:sections.primaryForm')}</div>
-        <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-          <div className="text-sm font-semibold text-[var(--text)]">{primaryForm?.name || '-'}</div>
-          <div className="text-xs text-[var(--muted)]">
-            {t('landings:labels.formId')}: <span className="font-mono">{primaryFormId || '-'}</span>
+        <Card className="flex h-full min-w-0 flex-col space-y-4">
+          <div className="text-sm font-semibold text-[var(--text)]">{t('landings:sections.primaryForm')}</div>
+          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+            <div className="text-sm font-semibold text-[var(--text)]">{primaryForm?.name || '-'}</div>
+            <div className="text-xs text-[var(--muted)]">
+              {t('landings:labels.formId')}: <span className="font-mono">{primaryFormId || '-'}</span>
+            </div>
           </div>
-        </div>
-        <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
-          <div className="text-xs text-[var(--muted)]">{t('landings:labels.primaryEndpoint')}</div>
-          <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{primaryEndpoint || '-'}</div>
-          <div className="mt-2 flex gap-2">
-            {primaryEndpoint && (
-              <Button
-                className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
-                onClick={() => copy(primaryEndpoint)}
-              >
-                {t('landings:actions.copy')}
-              </Button>
-            )}
+          <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3">
+            <div className="text-xs text-[var(--muted)]">{t('landings:labels.primaryEndpoint')}</div>
+            <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{primaryEndpoint || '-'}</div>
+            <div className="mt-2 flex gap-2">
+              {primaryEndpoint && (
+                <Button
+                  className={copyActionClass}
+                  onClick={() => copy(primaryEndpoint)}
+                >
+                  {t('landings:actions.copy')}
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="space-y-3">
@@ -238,11 +278,13 @@ export default function LandingDetail() {
                           payload: { isActive: !f.isActive },
                         })
                       }
+                      disabled={isSupport}
+                      title={isSupport ? readOnlyText.actionTitle : undefined}
                     >
                       {f.isActive ? t('landings:actions.deactivate') : t('landings:actions.activate')}
                     </Button>
                     <Button
-                      className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] !bg-[var(--surface)] !text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
+                      className={copyActionClass}
                       onClick={() => copy(formEndpoint)}
                     >
                       {t('landings:actions.copyEndpoint')}
@@ -257,7 +299,8 @@ export default function LandingDetail() {
                           if (!shouldContinue) return
                           mMakePrimary.mutate(f.id)
                         }}
-                        disabled={mMakePrimary.isPending}
+                        disabled={isSupport || mMakePrimary.isPending}
+                        title={isSupport ? readOnlyText.actionTitle : undefined}
                       >
                         {t('landings:actions.makePrimary')}
                       </Button>
@@ -277,13 +320,20 @@ export default function LandingDetail() {
         <Card className="space-y-3">
           <div className="text-sm font-semibold text-[var(--text)]">{t('landings:sections.createForm')}</div>
           <div className="text-xs text-[var(--muted)]">{t('landings:detail.createFormHelper')}</div>
+          {isSupport ? <div className="text-xs text-[var(--muted)]">{readOnlyText.sectionHint}</div> : null}
           <div>
             <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:create.nameLabel')}</div>
-            <Input value={newFormName} onChange={(e) => setNewFormName(e.target.value)} />
+            <Input value={newFormName} onChange={(e) => setNewFormName(e.target.value)} disabled={isSupport} />
           </div>
           <div>
             <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:labels.fieldsJson')}</div>
-            <Textarea value={newFields} onChange={(e) => setNewFields(e.target.value)} rows={10} className="font-mono" />
+            <Textarea
+              value={newFields}
+              onChange={(e) => setNewFields(e.target.value)}
+              rows={10}
+              className="font-mono"
+              disabled={isSupport}
+            />
           </div>
           <Button
             onClick={() => {
@@ -294,7 +344,8 @@ export default function LandingDetail() {
                 setToast(`❌ ${t('landings:toasts.invalidFieldsJson')}`)
               }
             }}
-            disabled={mCreateForm.isPending}
+            disabled={isSupport || mCreateForm.isPending}
+            title={isSupport ? readOnlyText.actionTitle : undefined}
           >
             {mCreateForm.isPending ? t('landings:actions.creatingForm') : t('landings:actions.createForm')}
           </Button>
@@ -302,19 +353,40 @@ export default function LandingDetail() {
           <div className="mt-5 space-y-3 border-t border-[color:color-mix(in_srgb,var(--text)_10%,white)] pt-4">
             <div className="text-sm font-semibold text-[var(--text)]">{t('landings:sections.testSubmit')}</div>
             <div className="text-xs text-[var(--muted)]">{t('landings:detail.testSubmitHelper')}</div>
+            {isSupport ? <div className="text-xs text-[var(--muted)]">{readOnlyText.sectionHint}</div> : null}
             <div>
               <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:labels.formId')}</div>
-              <Input
+              <EntitySelectField
                 value={testFormId}
-                onChange={(e) => setTestFormId(e.target.value)}
+                onChange={setTestFormId}
                 placeholder={t('landings:detail.testFormPlaceholder')}
+                disabled={isSupport}
+                label=""
+                ariaLabel={t('landings:labels.formId')}
+                id="landing-test-form-select"
+                name="landing-test-form-select"
+                options={forms.map((form) => ({
+                  id: form.id,
+                  name: form.name,
+                  description: form.id,
+                }))}
               />
             </div>
             <div>
               <div className="mb-1 text-xs text-[var(--muted)]">{t('landings:labels.payloadJson')}</div>
-              <Textarea value={testPayload} onChange={(e) => setTestPayload(e.target.value)} rows={10} className="font-mono" />
+              <Textarea
+                value={testPayload}
+                onChange={(e) => setTestPayload(e.target.value)}
+                rows={10}
+                className="font-mono"
+                disabled={isSupport}
+              />
             </div>
-            <Button onClick={() => mTest.mutate()} disabled={mTest.isPending || !testFormId.trim()}>
+            <Button
+              onClick={() => mTest.mutate()}
+              disabled={isSupport || mTest.isPending || !testFormId.trim()}
+              title={isSupport ? readOnlyText.actionTitle : undefined}
+            >
               {mTest.isPending ? t('landings:actions.sendingTest') : t('landings:actions.sendTest')}
             </Button>
           </div>

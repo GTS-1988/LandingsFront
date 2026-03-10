@@ -59,5 +59,17 @@
     "logout": "Cerrar sesión",
     "loggingOut": "Cerrando sesión...",
     "logoutError": "No se pudo cerrar sesión."
+  },
+  "permissions": {
+    "readOnlyAction": "Acceso de solo lectura",
+    "readOnlyHint": "Acceso de solo lectura: esta acción está visible pero no disponible para tu rol."
+  },
+  "selectors": {
+    "searchPlaceholder": "Buscar...",
+    "loading": "Cargando opciones...",
+    "empty": "No hay opciones disponibles.",
+    "noResults": "No se encontraron resultados.",
+    "clear": "Limpiar selección",
+    "selected": "Actual"
   }
 }

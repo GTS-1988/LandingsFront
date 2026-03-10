@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { cx } from '../lib/cx'
 import { useAuth } from '../auth/useAuth'
+import { useRoleAccess } from '../auth/permissions'
 import { getAuditUnreadCount } from '../lib/api'
 
 const SIDEBAR_COLLAPSED_KEY = 'landing-admin.sidebar-collapsed'
@@ -102,7 +103,8 @@ export default function Shell({ children }: PropsWithChildren) {
   const { t } = useTranslation('common')
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { role, user, isStaff, logout } = useAuth()
+  const { role, user, logout } = useAuth()
+  const { canSeeClientsNavigation } = useRoleAccess()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
@@ -222,7 +224,9 @@ export default function Shell({ children }: PropsWithChildren) {
       </div>
       <nav className="flex flex-col gap-1.5">
         <Item to="/" icon={LayoutDashboard} label={t('navigation.dashboard')} collapsed={collapsed} onNavigate={onNavigate} />
-        {!isStaff && <Item to="/clients" icon={Users} label={t('navigation.clients')} collapsed={collapsed} onNavigate={onNavigate} />}
+        {canSeeClientsNavigation && (
+          <Item to="/clients" icon={Users} label={t('navigation.clients')} collapsed={collapsed} onNavigate={onNavigate} />
+        )}
         <Item to="/landings" icon={PanelsTopLeft} label={t('navigation.landings')} collapsed={collapsed} onNavigate={onNavigate} />
         <Item to="/submissions" icon={Inbox} label={t('navigation.submissions')} collapsed={collapsed} onNavigate={onNavigate} />
         <Item

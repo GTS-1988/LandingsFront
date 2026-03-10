@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Client, createClient, listClients } from '../lib/api'
 import { getLanguageDateLocale } from '../i18n'
+import { useReadOnlySupportText, useRoleAccess } from '../auth/permissions'
 import useCursorPagination from '../hooks/useCursorPagination'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
@@ -22,6 +23,8 @@ function fmtDate(ts: string, locale: string) {
 
 export default function Clients() {
   const { t, i18n } = useTranslation(['clients', 'common'])
+  const { isSupport } = useRoleAccess()
+  const readOnlyText = useReadOnlySupportText()
   const [name, setName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
   const [searchInput, setSearchInput] = useState('')
@@ -93,12 +96,18 @@ export default function Clients() {
             onChange={(e) => setName(e.target.value)}
             placeholder={t('clients:form.namePlaceholder')}
             aria-label={t('clients:form.nameLabel')}
+            disabled={isSupport}
           />
-          <Button onClick={() => m.mutate()} disabled={m.isPending || !name.trim()}>
+          <Button
+            onClick={() => m.mutate()}
+            disabled={isSupport || m.isPending || !name.trim()}
+            title={isSupport ? readOnlyText.actionTitle : undefined}
+          >
             {m.isPending ? t('clients:actions.creating') : t('clients:actions.create')}
           </Button>
         </div>
         <div className="text-xs text-[var(--muted)]">{t('clients:create.tip')}</div>
+        {isSupport ? <div className="text-xs text-[var(--muted)]">{readOnlyText.sectionHint}</div> : null}
       </Card>
 
       <Card className="space-y-4">

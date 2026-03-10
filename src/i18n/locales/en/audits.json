@@ -1,11 +1,13 @@
 {
   "page": {
     "title": "Audits",
-    "subtitle": "Unread events are loaded first and marked as read when entering this section."
+    "subtitle": "Unread events are loaded first and marked as read when entering this section.",
+    "supportSubtitle": "Unread events load first. For support they remain visible without being marked as read."
   },
   "actions": {
     "viewRecentHistory": "View recent history",
-    "backToUnread": "Back to unread"
+    "backToUnread": "Back to unread",
+    "markLoadedAsRead": "Mark loaded as read"
   },
   "status": {
     "showingHistory": "Showing recent history",
@@ -14,7 +16,8 @@
     "updatingTable": "Updating table...",
     "showingRecentCount": "Showing the latest 50 available events.",
     "initialBatchProcessed": "The initial loaded batch was already processed to sync its read state.",
-    "recentEventsLoaded": "Recent events loaded from audits."
+    "recentEventsLoaded": "Recent events loaded from audits.",
+    "supportUnreadVisible": "Pending events remain visible in read-only mode."
   },
   "states": {
     "loading": "Loading events...",

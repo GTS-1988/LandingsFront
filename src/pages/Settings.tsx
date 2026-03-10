@@ -39,6 +39,8 @@ function SegmentedOption<T extends string>({
   label,
   description,
   icon: Icon,
+  disabled = false,
+  title,
 }: {
   value: T
   currentValue: T
@@ -46,16 +48,20 @@ function SegmentedOption<T extends string>({
   label: string
   description: string
   icon?: any
+  disabled?: boolean
+  title?: string
 }) {
   const isActive = value === currentValue
 
   return (
     <button
       type="button"
+      disabled={disabled}
+      title={title}
       onClick={() => onSelect(value)}
       aria-pressed={isActive}
       className={cx(
-        'flex min-w-0 flex-1 items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)]',
+        'flex min-w-0 flex-1 items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)] disabled:cursor-not-allowed disabled:opacity-60',
         isActive
           ? 'border-[color:color-mix(in_srgb,var(--accent)_26%,white)] bg-[color:color-mix(in_srgb,var(--accent)_12%,var(--surface))] text-[var(--text)]'
           : 'border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-soft)]',

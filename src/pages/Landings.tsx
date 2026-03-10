@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { createLanding, getLandingDetails, listLandings } from '../lib/api'
+import { useReadOnlySupportText, useRoleAccess } from '../auth/permissions'
 import useClientsOptions from '../hooks/useClientsOptions'
 import useCursorPagination from '../hooks/useCursorPagination'
 import { getLanguageDateLocale } from '../i18n'
@@ -24,8 +25,16 @@ function fmtDate(ts: string, locale: string) {
   }
 }
 
+const primaryActionLinkClass =
+  'inline-flex items-center justify-center rounded-xl border border-[color:color-mix(in_srgb,var(--accent)_38%,white)] bg-[var(--accent)] px-3.5 py-2 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(var(--shadow-color),0.08)] transition duration-200 ease-out hover:bg-[color:color-mix(in_srgb,var(--accent)_88%,black)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_42%,white)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface)]'
+
+const copyActionClass =
+  'border-[color:color-mix(in_srgb,var(--accent)_24%,white)] !bg-[color:color-mix(in_srgb,var(--accent)_18%,white)] !text-[color:color-mix(in_srgb,var(--accent)_88%,black)] hover:!bg-[color:color-mix(in_srgb,var(--accent)_26%,white)] hover:!text-[color:color-mix(in_srgb,var(--accent)_92%,black)]'
+
 export default function Landings() {
   const { t, i18n } = useTranslation(['landings', 'common'])
+  const { isSupport } = useRoleAccess()
+  const readOnlyText = useReadOnlySupportText()
   const [selectedClientId, setSelectedClientId] = useState('')
   const [name, setName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
@@ -183,8 +192,9 @@ export default function Landings() {
           <EntitySelectField
             label={t('landings:create.clientLabel')}
             value={selectedClientId}
-            onChange={(e) => setSelectedClientId(e.target.value)}
+            onChange={setSelectedClientId}
             disabled={clientsLoading}
+            loading={clientsLoading}
             id="landing-client-select"
             name="landing-client-select"
             ariaLabel={t('landings:create.clientAriaLabel')}
@@ -211,14 +221,20 @@ export default function Landings() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={t('landings:create.namePlaceholder')}
+              disabled={isSupport}
             />
           </div>
         </div>
         <div>
-          <Button onClick={() => m.mutate()} disabled={m.isPending || !selectedClientId.trim() || !name.trim()}>
+          <Button
+            onClick={() => m.mutate()}
+            disabled={isSupport || m.isPending || !selectedClientId.trim() || !name.trim()}
+            title={isSupport ? readOnlyText.actionTitle : undefined}
+          >
             {m.isPending ? t('landings:actions.creating') : t('landings:actions.create')}
           </Button>
         </div>
+        {isSupport ? <div className="text-xs text-[var(--muted)]">{readOnlyText.sectionHint}</div> : null}
       </Card>
 
       <Card className="space-y-4">
@@ -326,21 +342,18 @@ export default function Landings() {
                 <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{telegramConnectUrl || '-'}</div>
                 <div className="mt-2 flex gap-2">
                   {telegramConnectUrl && (
-                    <Button
-                      className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
-                      onClick={() => copy(telegramConnectUrl)}
-                    >
+                    <Button className={copyActionClass} onClick={() => copy(telegramConnectUrl)}>
                       {t('landings:actions.copy')}
                     </Button>
                   )}
                   {telegramConnectUrl && (
                     <a
-                      className="text-sm font-medium text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))] underline"
+                      className={primaryActionLinkClass}
                       href={telegramConnectUrl}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {t('landings:actions.open')}
+                      {t('landings:actions.open')} Telegram
                     </a>
                   )}
                 </div>
@@ -351,10 +364,7 @@ export default function Landings() {
                 <div className="mt-1 break-all font-mono text-xs text-[var(--text)]">{formEndpoint || '-'}</div>
                 <div className="mt-2 flex gap-2">
                   {formEndpoint && (
-                    <Button
-                      className="border-[color:color-mix(in_srgb,var(--text)_18%,white)] bg-[var(--surface)] text-[var(--text)] hover:bg-[color:color-mix(in_srgb,var(--bg)_90%,white)]"
-                      onClick={() => copy(formEndpoint)}
-                    >
+                    <Button className={copyActionClass} onClick={() => copy(formEndpoint)}>
                       {t('landings:actions.copy')}
                     </Button>
                   )}
@@ -364,12 +374,12 @@ export default function Landings() {
             </div>
 
             {modalLandingId && (
-              <div>
+              <div className="flex justify-end border-t border-[color:color-mix(in_srgb,var(--text)_10%,white)] pt-3">
                 <Link
-                  className="text-sm font-medium text-[color:color-mix(in_srgb,var(--accent)_82%,var(--text))] underline"
+                  className={primaryActionLinkClass}
                   to={`/landings/${modalLandingId}`}
                 >
-                  {t('landings:actions.openDetail')} →
+                  {t('landings:actions.openDetail')}
                 </Link>
               </div>
             )}

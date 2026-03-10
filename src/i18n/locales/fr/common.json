@@ -59,5 +59,17 @@
     "logout": "Se déconnecter",
     "loggingOut": "Déconnexion...",
     "logoutError": "Impossible de fermer la session."
+  },
+  "permissions": {
+    "readOnlyAction": "Accès en lecture seule",
+    "readOnlyHint": "Accès en lecture seule : cette action reste visible mais n'est pas disponible pour votre rôle."
+  },
+  "selectors": {
+    "searchPlaceholder": "Rechercher...",
+    "loading": "Chargement des options...",
+    "empty": "Aucune option disponible.",
+    "noResults": "Aucun résultat trouvé.",
+    "clear": "Effacer la sélection",
+    "selected": "Actuel"
   }
 }

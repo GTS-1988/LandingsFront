@@ -1,11 +1,13 @@
 {
   "page": {
     "title": "Auditoria",
-    "subtitle": "Os eventos não lidos são carregados primeiro e marcados como lidos ao entrar nesta seção."
+    "subtitle": "Os eventos não lidos são carregados primeiro e marcados como lidos ao entrar nesta seção.",
+    "supportSubtitle": "Os eventos não lidos são carregados primeiro. Para suporte, eles permanecem visíveis sem serem marcados como lidos."
   },
   "actions": {
     "viewRecentHistory": "Ver histórico recente",
-    "backToUnread": "Voltar para não lidas"
+    "backToUnread": "Voltar para não lidas",
+    "markLoadedAsRead": "Marcar carregados como lidos"
   },
   "status": {
     "showingHistory": "Mostrando histórico recente",
@@ -14,7 +16,8 @@
     "updatingTable": "Atualizando tabela...",
     "showingRecentCount": "Mostrando os 50 eventos mais recentes disponíveis.",
     "initialBatchProcessed": "O lote inicial carregado já foi processado para sincronizar o estado de leitura.",
-    "recentEventsLoaded": "Eventos recentes carregados da auditoria."
+    "recentEventsLoaded": "Eventos recentes carregados da auditoria.",
+    "supportUnreadVisible": "Os eventos pendentes permanecem visíveis em modo somente leitura."
   },
   "states": {
     "loading": "Carregando eventos...",

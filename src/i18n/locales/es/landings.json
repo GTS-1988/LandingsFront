@@ -73,7 +73,7 @@
   },
   "status": {
     "connected": "✅ Conectado",
-    "disconnected": "❌ No conectado",
+    "disconnected": "No conectado",
     "primary": "Principal"
   },
   "states": {

@@ -1,11 +1,13 @@
 {
   "page": {
     "title": "Audit",
-    "subtitle": "Ungelesene Ereignisse werden zuerst geladen und beim Betreten dieses Bereichs als gelesen markiert."
+    "subtitle": "Ungelesene Ereignisse werden zuerst geladen und beim Betreten dieses Bereichs als gelesen markiert.",
+    "supportSubtitle": "Ungelesene Ereignisse werden zuerst geladen. Für Support bleiben sie sichtbar, ohne als gelesen markiert zu werden."
   },
   "actions": {
     "viewRecentHistory": "Aktuellen Verlauf anzeigen",
-    "backToUnread": "Zurück zu ungelesen"
+    "backToUnread": "Zurück zu ungelesen",
+    "markLoadedAsRead": "Geladene Einträge als gelesen markieren"
   },
   "status": {
     "showingHistory": "Aktueller Verlauf wird angezeigt",
@@ -14,7 +16,8 @@
     "updatingTable": "Tabelle wird aktualisiert...",
     "showingRecentCount": "Die letzten 50 verfügbaren Ereignisse werden angezeigt.",
     "initialBatchProcessed": "Die zuerst geladene Gruppe wurde bereits verarbeitet, um den Lesestatus zu synchronisieren.",
-    "recentEventsLoaded": "Aktuelle Ereignisse aus dem Audit geladen."
+    "recentEventsLoaded": "Aktuelle Ereignisse aus dem Audit geladen.",
+    "supportUnreadVisible": "Ausstehende Ereignisse bleiben im Nur-Lese-Modus sichtbar."
   },
   "states": {
     "loading": "Ereignisse werden geladen...",

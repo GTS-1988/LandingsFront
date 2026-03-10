@@ -1,15 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { listLandings, listSubmissions, submitForm, Submission } from '../lib/api'
+import { useReadOnlySupportText, useRoleAccess } from '../auth/permissions'
+import { Form, getLanding, listLandings, listSubmissions, submitForm, Submission } from '../lib/api'
+import normalizeSearchValue from '../lib/normalizeSearchValue'
 import { getLanguageDateLocale } from '../i18n'
 import useClientsOptions from '../hooks/useClientsOptions'
 import { Card } from '../ui/Card'
 import Button from '../ui/Button'
 import EntitySelectField from '../ui/EntitySelectField'
 import { EmptyFeedback, ErrorFeedback, LoadingFeedback } from '../ui/Feedback'
-import SelectField from '../ui/SelectField'
+import Input from '../ui/Input'
+import Modal from '../ui/Modal'
+import PaginationControls from '../ui/PaginationControls'
 import Toast from '../ui/Toast'
+
+const MAX_SUBMISSIONS_WINDOW = 200
+const SUBMISSIONS_PAGE_SIZE = 24
 
 function fmt(ts: string, locale: string) {
   try {
@@ -19,8 +26,124 @@ function fmt(ts: string, locale: string) {
   }
 }
 
+function getSubmissionSearchText(submission: Submission) {
+  return normalizeSearchValue(
+    [
+      submission.id,
+      submission.name,
+      submission.email,
+      submission.phone,
+      submission.message,
+      submission.formId,
+      submission.form?.name,
+    ]
+      .filter(Boolean)
+      .join(' '),
+  )
+}
+
+function SubmissionDetailContent({
+  submission,
+  dateLocale,
+  isSupport,
+  readOnlyText,
+  resendPending,
+  onResend,
+  t,
+}: {
+  submission: Submission
+  dateLocale: string
+  isSupport: boolean
+  readOnlyText: ReturnType<typeof useReadOnlySupportText>
+  resendPending: boolean
+  onResend: () => void
+  t: (key: string, options?: any) => string
+}) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-4 text-[var(--text)]">
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">{t('submissions:detail.idsTitle')}</div>
+            <div className="mt-3 space-y-2 text-sm">
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.submissionId')}:</span>{' '}
+                <span className="font-mono text-xs font-semibold text-[var(--text)]">{submission.id}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.landingId')}:</span>{' '}
+                <span className="font-mono text-xs font-semibold text-[var(--text)]">{submission.landingId}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.formId')}:</span>{' '}
+                <span className="font-mono text-xs font-semibold text-[var(--text)]">{submission.formId}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.createdAtLabel')}:</span>{' '}
+                <span className="font-medium text-[var(--text)]">{fmt(submission.createdAt, dateLocale)}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.deliveredAtLabel')}:</span>{' '}
+                <span className="font-medium text-[var(--text)]">
+                  {submission.deliveredAt ? fmt(submission.deliveredAt, dateLocale) : '-'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-4 text-[var(--text)]">
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">{t('submissions:detail.fieldsTitle')}</div>
+            <div className="mt-3 space-y-2 text-sm">
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.nameLabel')}:</span>{' '}
+                <span className="font-medium text-[var(--text)]">{submission.name || '-'}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.emailLabel')}:</span>{' '}
+                <span className="font-medium text-[var(--text)]">{submission.email || '-'}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.phoneLabel')}:</span>{' '}
+                <span className="font-medium text-[var(--text)]">{submission.phone || '-'}</span>
+              </div>
+              <div>
+                <span className="font-semibold text-[var(--muted)]">{t('submissions:detail.messageLabel')}:</span>
+                <div className="mt-1 whitespace-pre-wrap rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)]">
+                  {submission.message || '-'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex h-full flex-col rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-4 text-[var(--text)]">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">{t('submissions:detail.rawDataTitle')}</div>
+            <div className="mt-1 text-sm font-semibold text-[var(--text)]">{submission.form?.name || t('submissions:list.formReference', { id: submission.formId })}</div>
+          </div>
+          <pre className="mt-4 max-h-[58vh] overflow-auto rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] p-3 text-xs text-[var(--text)]">
+{JSON.stringify(submission.data || {}, null, 2)}
+          </pre>
+          {isSupport ? <div className="mt-3 text-xs text-[var(--muted)]">{readOnlyText.sectionHint}</div> : null}
+          <div className="mt-auto flex justify-end border-t border-[color:color-mix(in_srgb,var(--text)_10%,white)] pt-4">
+            <Button
+              onClick={onResend}
+              disabled={isSupport || resendPending}
+              title={isSupport ? readOnlyText.actionTitle : t('submissions:detail.resendTitle')}
+            >
+              {resendPending ? t('submissions:actions.resending') : t('submissions:actions.resend')}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Submissions() {
   const { t, i18n } = useTranslation(['submissions', 'common'])
+  const { isSupport } = useRoleAccess()
+  const readOnlyText = useReadOnlySupportText()
   const { clients, clientsLoading, clientsError } = useClientsOptions()
   const [selectedClientId, setSelectedClientId] = useState('')
 
@@ -28,77 +151,77 @@ export default function Submissions() {
   const [landingsLoading, setLandingsLoading] = useState(false)
   const [landingsError, setLandingsError] = useState<string | null>(null)
   const [selectedLandingId, setSelectedLandingId] = useState('')
+  const [forms, setForms] = useState<Form[]>([])
+  const [formsLoading, setFormsLoading] = useState(false)
+  const [formsError, setFormsError] = useState<string | null>(null)
+  const [selectedFormId, setSelectedFormId] = useState('')
+  const [searchInput, setSearchInput] = useState('')
 
-  const [pageSize, setPageSize] = useState(50)
   const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
   const [loadingInitial, setLoadingInitial] = useState(false)
-  const [loadingMore, setLoadingMore] = useState(false)
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [submissionsError, setSubmissionsError] = useState<string | null>(null)
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
 
   const [toast, setToast] = useState<string | null>(null)
 
   const submissionsRequestIdRef = useRef(0)
   const landingsRequestIdRef = useRef(0)
-  const listRootRef = useRef<HTMLDivElement | null>(null)
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-
-  const hasMoreRef = useRef(true)
-  const loadingInitialRef = useRef(false)
-  const loadingMoreRef = useRef(false)
-  const selectedLandingIdRef = useRef('')
-  const computedTakeRef = useRef(50)
-
-  const computedTake = Math.min(page * pageSize, 200)
+  const formsRequestIdRef = useRef(0)
+  const lastTriggerRef = useRef<HTMLElement | null>(null)
   const dateLocale = getLanguageDateLocale(i18n.resolvedLanguage || i18n.language)
   const selected = useMemo(
     () => submissions.find((s) => s.id === selectedSubmissionId) || null,
     [submissions, selectedSubmissionId],
   )
-
-  useEffect(() => {
-    hasMoreRef.current = hasMore
-  }, [hasMore])
-
-  useEffect(() => {
-    loadingInitialRef.current = loadingInitial
-  }, [loadingInitial])
-
-  useEffect(() => {
-    loadingMoreRef.current = loadingMore
-  }, [loadingMore])
-
-  useEffect(() => {
-    selectedLandingIdRef.current = selectedLandingId
-  }, [selectedLandingId])
-
-  useEffect(() => {
-    computedTakeRef.current = computedTake
-  }, [computedTake])
+  const totalLoadedCount = submissions.length
+  const isTotalKnown = totalLoadedCount < MAX_SUBMISSIONS_WINDOW
+  const filteredSubmissions = useMemo(() => {
+    const normalizedQuery = normalizeSearchValue(searchInput)
+    return submissions.filter((submission) => {
+      if (selectedFormId && submission.formId !== selectedFormId) return false
+      if (!normalizedQuery) return true
+      return getSubmissionSearchText(submission).includes(normalizedQuery)
+    })
+  }, [searchInput, selectedFormId, submissions])
+  const totalPages = Math.max(1, Math.ceil(filteredSubmissions.length / SUBMISSIONS_PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const pageStart = (currentPage - 1) * SUBMISSIONS_PAGE_SIZE
+  const visibleSubmissions = filteredSubmissions.slice(pageStart, pageStart + SUBMISSIONS_PAGE_SIZE)
+  const pageRangeStart = filteredSubmissions.length ? pageStart + 1 : 0
+  const pageRangeEnd = Math.min(pageStart + SUBMISSIONS_PAGE_SIZE, filteredSubmissions.length)
 
   const resetSubmissionState = () => {
     setPage(1)
-    setHasMore(true)
     setSubmissions([])
     setSubmissionsError(null)
     setSelectedSubmissionId(null)
+    setIsDetailOpen(false)
   }
 
   useEffect(() => {
+    landingsRequestIdRef.current += 1
+    formsRequestIdRef.current += 1
+    submissionsRequestIdRef.current += 1
     setSelectedLandingId('')
+    setSelectedFormId('')
+    setForms([])
+    setFormsError(null)
     setLandings([])
     setLandingsError(null)
+    setSearchInput('')
+    setLoadingInitial(false)
     resetSubmissionState()
 
     if (!selectedClientId) {
       setLandingsLoading(false)
+      setFormsLoading(false)
       return
     }
 
-    const requestId = ++landingsRequestIdRef.current
+    const requestId = landingsRequestIdRef.current
     setLandingsLoading(true)
 
     listLandings({ clientId: selectedClientId, take: 200 })
@@ -108,44 +231,82 @@ export default function Submissions() {
       })
       .catch((e: any) => {
         if (requestId !== landingsRequestIdRef.current) return
-        setLandingsError(e?.message || i18n.t('submissions:states.loadLandingsError'))
+        setLandingsError(e?.message || t('submissions:states.loadLandingsError'))
       })
       .finally(() => {
         if (requestId !== landingsRequestIdRef.current) return
         setLandingsLoading(false)
       })
-  }, [selectedClientId])
+  }, [selectedClientId, t])
 
   useEffect(() => {
+    formsRequestIdRef.current += 1
+    setSelectedFormId('')
+    setForms([])
+    setFormsError(null)
+    setSearchInput('')
+    setFormsLoading(false)
+    resetSubmissionState()
+
     if (!selectedLandingId) return
 
-    const requestId = ++submissionsRequestIdRef.current
-    setSubmissionsError(null)
-    if (page > 1) setLoadingMore(true)
-    else setLoadingInitial(true)
+    const formsRequestId = formsRequestIdRef.current
+    setFormsLoading(true)
+    getLanding(selectedLandingId)
+      .then((landing) => {
+        if (formsRequestId !== formsRequestIdRef.current) return
+        setForms(landing.forms || [])
+      })
+      .catch((e: any) => {
+        if (formsRequestId !== formsRequestIdRef.current) return
+        setFormsError(e?.message || t('submissions:states.loadFormsError'))
+      })
+      .finally(() => {
+        if (formsRequestId !== formsRequestIdRef.current) return
+        setFormsLoading(false)
+      })
+  }, [selectedLandingId, t])
 
-    listSubmissions({ landingId: selectedLandingId, take: computedTake })
+  useEffect(() => {
+    submissionsRequestIdRef.current += 1
+    if (!selectedLandingId) {
+      setLoadingInitial(false)
+      return
+    }
+
+    const requestId = submissionsRequestIdRef.current
+    setSubmissionsError(null)
+    setLoadingInitial(true)
+
+    listSubmissions({ landingId: selectedLandingId, take: MAX_SUBMISSIONS_WINDOW })
       .then((rows) => {
         if (requestId !== submissionsRequestIdRef.current) return
-
-        const returnedCount = rows.length
-        const expectedCount = computedTake
         setSubmissions(rows)
-
-        if (expectedCount >= 200) setHasMore(false)
-        else if (returnedCount < expectedCount) setHasMore(false)
-        else setHasMore(true)
       })
       .catch((e: any) => {
         if (requestId !== submissionsRequestIdRef.current) return
-        setSubmissionsError(e?.message || i18n.t('submissions:states.loadError'))
+        setSubmissionsError(e?.message || t('submissions:states.loadError'))
       })
       .finally(() => {
         if (requestId !== submissionsRequestIdRef.current) return
         setLoadingInitial(false)
-        setLoadingMore(false)
       })
-  }, [selectedLandingId, computedTake, page, refreshKey])
+  }, [selectedLandingId, refreshKey, t])
+
+  useEffect(() => {
+    setPage(1)
+  }, [selectedFormId, searchInput])
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages)
+  }, [page, totalPages])
+
+  useEffect(() => {
+    if (selectedSubmissionId && !submissions.some((submission) => submission.id === selectedSubmissionId)) {
+      setSelectedSubmissionId(null)
+      setIsDetailOpen(false)
+    }
+  }, [selectedSubmissionId, submissions])
 
   const mResend = useMutation({
     mutationFn: async (s: Submission) => {
@@ -159,37 +320,43 @@ export default function Submissions() {
     onError: (e: any) => setToast(`❌ ${t('submissions:toasts.error', { message: e?.message || e })}`),
   })
 
-  useEffect(() => {
-    const root = listRootRef.current
-    const target = sentinelRef.current
-    if (!root || !target) return
+  const openSubmissionDetails = (submissionId: string, trigger?: HTMLElement | null) => {
+    if (trigger) lastTriggerRef.current = trigger
+    setSelectedSubmissionId(submissionId)
+    setIsDetailOpen(true)
+  }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0]
-        if (!first?.isIntersecting) return
-        if (!selectedLandingIdRef.current) return
-        if (!hasMoreRef.current) return
-        if (loadingInitialRef.current || loadingMoreRef.current) return
-        if (computedTakeRef.current >= 200) return
-        setPage((p) => p + 1)
-      },
-      { root, rootMargin: '200px', threshold: 0 },
-    )
+  const closeSubmissionDetails = () => {
+    setIsDetailOpen(false)
+  }
 
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [selectedLandingId, hasMore, loadingInitial, loadingMore, computedTake])
+  const pageLabel = isTotalKnown
+    ? t('submissions:pagination.pageLabelKnown', { page: currentPage, total: totalPages })
+    : t('submissions:pagination.pageLabelLoaded', { page: currentPage, total: totalPages })
 
   return (
     <div className="space-y-5">
-      <Card className="space-y-3">
-        <div className="grid gap-2.5 md:grid-cols-3">
+      <Card className="space-y-4">
+        <div className="flex flex-col gap-1">
+
+          <div className="text-sm text-[var(--muted)]">
+            {!selectedLandingId
+              ? t('submissions:list.noSelectionCount')
+              : searchInput || selectedFormId
+                ? t('submissions:list.filteredCount', { visible: filteredSubmissions.length, count: submissions.length })
+                : isTotalKnown
+                  ? t('submissions:list.count', { count: submissions.length })
+                  : t('submissions:list.loadedCount', { count: submissions.length })}
+          </div>
+        </div>
+
+        <div className="grid gap-3 xl:grid-cols-3">
           <EntitySelectField
             label={t('submissions:filters.clientLabel')}
             value={selectedClientId}
-            onChange={(e) => setSelectedClientId(e.target.value)}
+            onChange={setSelectedClientId}
             disabled={clientsLoading}
+            loading={clientsLoading}
             id="submissions-client-select"
             name="submissions-client-select"
             placeholder={t('submissions:filters.clientPlaceholder')}
@@ -201,11 +368,12 @@ export default function Submissions() {
           <EntitySelectField
             label={t('submissions:filters.landingLabel')}
             value={selectedLandingId}
-            onChange={(e) => {
-              setSelectedLandingId(e.target.value)
+            onChange={(value) => {
+              setSelectedLandingId(value)
               resetSubmissionState()
             }}
             disabled={!selectedClientId || landingsLoading}
+            loading={landingsLoading}
             id="submissions-landing-select"
             name="submissions-landing-select"
             placeholder={t('submissions:filters.landingPlaceholder')}
@@ -214,33 +382,65 @@ export default function Submissions() {
             ariaLabel={t('submissions:filters.landingAriaLabel')}
           />
 
-          <SelectField
-            label={t('submissions:filters.pageSizeLabel')}
-            value={String(pageSize)}
-            onChange={(e) => {
-              setPageSize(parseInt(e.target.value, 10))
-              resetSubmissionState()
-            }}
-            id="submissions-page-size-select"
-            name="submissions-page-size-select"
-          >
-              <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-              <option value="200">200</option>
-          </SelectField>
+          <EntitySelectField
+            label={t('submissions:filters.formLabel')}
+            value={selectedFormId}
+            onChange={setSelectedFormId}
+            disabled={!selectedLandingId || formsLoading}
+            loading={formsLoading}
+            id="submissions-form-select"
+            name="submissions-form-select"
+            placeholder={t('submissions:filters.formPlaceholder')}
+            options={forms.map((form) => ({ id: form.id, name: form.name, description: form.id }))}
+            helperText={formsError}
+            ariaLabel={t('submissions:filters.formAriaLabel')}
+          />
         </div>
-
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="flex h-[68vh] min-h-[460px] flex-col space-y-3">
-          <div className="text-sm font-semibold text-[var(--text)]">{t('submissions:list.title')}</div>
-          <div className="text-xs text-[var(--muted)]">
-            {!selectedLandingId ? t('submissions:list.noSelectionCount') : t('submissions:list.count', { count: submissions.length })}
+      <Card className="space-y-4">
+        <div className="flex flex-col gap-3">
+          <div className="space-y-1">
+            <div className="text-sm font-semibold text-[var(--text)]">{t('submissions:list.title')}</div>
+            {selectedLandingId && filteredSubmissions.length > 0 ? (
+              <div className="text-xs text-[var(--muted)]">
+                {t('submissions:list.resultsRange', {
+                  from: pageRangeStart,
+                  to: pageRangeEnd,
+                  total: filteredSubmissions.length,
+                })}
+              </div>
+            ) : null}
           </div>
 
-          <div ref={listRootRef} className="min-h-0 flex-1 space-y-2 overflow-auto">
+          <div className="w-full max-w-xl">
+            <div className="mb-1 text-xs text-[var(--muted)]">{t('submissions:search.label')}</div>
+            <Input
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder={t('submissions:search.placeholder')}
+              aria-label={t('submissions:search.ariaLabel')}
+              disabled={!selectedLandingId || loadingInitial}
+            />
+          </div>
+
+        </div>
+
+        {!isTotalKnown && selectedLandingId && !loadingInitial && !submissionsError && submissions.length > 0 ? (
+          <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--text)_8%,white)] bg-[color:color-mix(in_srgb,var(--bg)_62%,white)] px-3 py-2 text-xs text-[var(--muted)]">
+            {t('submissions:pagination.loadedHint', { count: MAX_SUBMISSIONS_WINDOW })}
+          </div>
+        ) : null}
+
+        <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]">
+          <div className="hidden grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1.5fr)_auto] gap-4 border-b border-[var(--border)] bg-[var(--surface-soft)] px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--muted)] lg:grid">
+            <div>{t('submissions:list.headers.contact')}</div>
+            <div>{t('submissions:list.headers.form')}</div>
+            <div>{t('submissions:list.headers.message')}</div>
+            <div className="text-right">{t('submissions:list.headers.status')}</div>
+          </div>
+
+          <div className="divide-y divide-[var(--border)]">
             {!selectedLandingId ? (
               <EmptyFeedback>{t('submissions:states.selectLanding')}</EmptyFeedback>
             ) : loadingInitial ? (
@@ -253,97 +453,90 @@ export default function Submissions() {
               />
             ) : submissions.length === 0 ? (
               <EmptyFeedback>{t('submissions:states.empty')}</EmptyFeedback>
+            ) : filteredSubmissions.length === 0 ? (
+              <EmptyFeedback>{t('submissions:list.noResults')}</EmptyFeedback>
             ) : (
-              <>
-                <div className="space-y-2">
-                  {submissions.map((s) => {
-                    const isSelected = selectedSubmissionId === s.id
-                    return (
-                      <button
-                        key={s.id}
-                        className={`w-full rounded-xl border p-3 text-left transition ${
-                          isSelected
-                            ? 'border-[color:color-mix(in_srgb,var(--accent)_35%,white)] bg-[color:color-mix(in_srgb,var(--accent)_10%,white)]'
-                            : 'border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] hover:bg-[color:color-mix(in_srgb,var(--bg)_86%,white)]'
-                        }`}
-                        onClick={() => setSelectedSubmissionId((prev) => (prev === s.id ? null : s.id))}
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-sm font-semibold text-[var(--text)]">{s.name || s.email || t('submissions:list.unnamed')}</div>
-                          <div className="text-xs text-[var(--muted)]">{fmt(s.createdAt, dateLocale)}</div>
+              visibleSubmissions.map((submission) => {
+                const isSelected = selectedSubmissionId === submission.id
+                return (
+                  <button
+                    key={submission.id}
+                    type="button"
+                    title={t('submissions:list.openDetail')}
+                    onClick={(event) => openSubmissionDetails(submission.id, event.currentTarget)}
+                    className={`w-full px-4 py-3 text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--accent)_45%,white)] ${
+                      isSelected
+                        ? 'bg-[color:color-mix(in_srgb,var(--accent)_10%,white)]'
+                        : 'bg-[var(--surface)] hover:bg-[color:color-mix(in_srgb,var(--bg)_84%,white)]'
+                    }`}
+                  >
+                    <div className="grid gap-3 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1.5fr)_auto] lg:items-start">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-[var(--text)]">
+                          {submission.name || submission.email || t('submissions:list.unnamed')}
                         </div>
-                        <div className="mt-1 text-xs text-[var(--muted)]">
-                          {t('submissions:list.formReference', { id: s.formId })}{' '}
-                          {s.form?.name ? ` • ${s.form.name}` : ''}
+                        <div className="mt-1 space-y-1 text-xs text-[var(--muted)]">
+                          <div className="truncate">{submission.email || '-'}</div>
+                          <div className="truncate">{submission.phone || '-'}</div>
                         </div>
-                        <div className="mt-1 line-clamp-2 text-xs text-[var(--muted)]">{s.message || ''}</div>
-                      </button>
-                    )
-                  })}
-                </div>
-                <div ref={sentinelRef} className="h-1" />
-                {loadingMore && (
-                  <div className="flex items-center justify-center py-2 text-sm text-[var(--muted)]">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-[color:color-mix(in_srgb,var(--text)_18%,white)] border-t-[var(--accent)]" />
-                    <span className="sr-only">{t('submissions:states.loadingMore')}</span>
-                  </div>
-                )}
-                {!hasMore && <div className="pb-2 text-center text-xs text-[var(--muted)]">{t('submissions:states.endOfResults')}</div>}
-              </>
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-medium text-[var(--text)]">
+                          {submission.form?.name || t('submissions:list.formReference', { id: submission.formId })}
+                        </div>
+                        <div className="mt-1 truncate font-mono text-xs text-[var(--muted)]">{submission.formId}</div>
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="line-clamp-2 text-sm text-[var(--text)]">{submission.message || '-'}</div>
+                      </div>
+
+                      <div className="space-y-2 text-left lg:text-right">
+                        <div className="text-sm text-[var(--text)]">{fmt(submission.createdAt, dateLocale)}</div>
+                        <div className="inline-flex rounded-full border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_70%,white)] px-2.5 py-1 text-xs font-medium text-[var(--muted)]">
+                          {submission.deliveredAt ? t('submissions:list.deliveryDelivered') : t('submissions:list.deliveryPending')}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                )
+              })
             )}
           </div>
-        </Card>
+        </div>
 
-        <Card className="space-y-3 md:h-[68vh] md:overflow-auto">
-          <div className="text-sm font-semibold text-[var(--text)]">{t('submissions:detail.title')}</div>
-          {!selected ? (
-            <div className="text-sm text-[var(--muted)]">{t('submissions:detail.empty')}</div>
-          ) : (
-            <div className="space-y-3">
-              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3 text-[var(--text)]">
-                <div className="text-xs text-[var(--muted)]">{t('submissions:detail.idsTitle')}</div>
-                <div className="mt-1 text-xs">
-                  {t('submissions:detail.submissionId')}: <span className="font-mono">{selected.id}</span>
-                </div>
-                <div className="text-xs">
-                  {t('submissions:detail.landingId')}: <span className="font-mono">{selected.landingId}</span>
-                </div>
-                <div className="text-xs">
-                  {t('submissions:detail.formId')}: <span className="font-mono">{selected.formId}</span>
-                </div>
-              </div>
+        {selectedLandingId && !loadingInitial && !submissionsError && filteredSubmissions.length > 0 ? (
+          <PaginationControls
+            pageLabel={pageLabel}
+            onPrevious={() => setPage((current) => Math.max(1, current - 1))}
+            onNext={() => setPage((current) => Math.min(totalPages, current + 1))}
+            previousDisabled={currentPage <= 1}
+            nextDisabled={currentPage >= totalPages}
+            previousLabel={t('submissions:actions.previousPage')}
+            nextLabel={t('submissions:actions.nextPage')}
+          />
+        ) : null}
+      </Card>
 
-              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3 text-[var(--text)]">
-                <div className="text-xs text-[var(--muted)]">{t('submissions:detail.fieldsTitle')}</div>
-                <div className="mt-1 text-sm">
-                  <div>👤 {t('submissions:detail.nameLabel')}: {selected.name || '-'}</div>
-                  <div>✉️ {t('submissions:detail.emailLabel')}: {selected.email || '-'}</div>
-                  <div>📞 {t('submissions:detail.phoneLabel')}: {selected.phone || '-'}</div>
-                </div>
-                <div className="mt-2 text-xs text-[var(--muted)]">{t('submissions:detail.messageLabel')}</div>
-                <div className="mt-1 whitespace-pre-wrap text-sm text-[var(--text)]">{selected.message || '-'}</div>
-              </div>
-
-              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[color:color-mix(in_srgb,var(--bg)_56%,white)] p-3 text-[var(--text)]">
-                <div className="text-xs text-[var(--muted)]">{t('submissions:detail.rawDataTitle')}</div>
-                <pre className="mt-1 max-h-64 overflow-auto rounded-xl border border-[color:color-mix(in_srgb,var(--text)_10%,white)] bg-[var(--surface)] p-2 text-xs text-[var(--text)]">
-{JSON.stringify(selected.data || {}, null, 2)}
-                </pre>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  onClick={() => mResend.mutate(selected)}
-                  disabled={mResend.isPending}
-                  title={t('submissions:detail.resendTitle')}
-                >
-                  {mResend.isPending ? t('submissions:actions.resending') : t('submissions:actions.resend')}
-                </Button>
-              </div>
-            </div>
-          )}
-        </Card>
-      </div>
+      <Modal
+        isOpen={isDetailOpen && Boolean(selected)}
+        title={selected?.name || selected?.email || t('submissions:detail.modalTitle')}
+        onClose={closeSubmissionDetails}
+        returnFocusRef={lastTriggerRef}
+      >
+        {selected ? (
+          <SubmissionDetailContent
+            submission={selected}
+            dateLocale={dateLocale}
+            isSupport={isSupport}
+            readOnlyText={readOnlyText}
+            resendPending={mResend.isPending}
+            onResend={() => mResend.mutate(selected)}
+            t={t}
+          />
+        ) : null}
+      </Modal>
 
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
